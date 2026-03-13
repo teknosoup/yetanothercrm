@@ -1,0 +1,26 @@
+{
+  "name": "yetanothercrm",
+  "version": "1.0.0",
+  "private": true,
+  "description": "YetAnotherCRM",
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c blue,green \"npm -w apps/api run start:dev\" \"npm -w apps/web run dev\"",
+    "lint": "npm -w apps/api run lint && npm -w apps/web run lint",
+    "typecheck": "npm -w apps/api run typecheck && npm -w apps/web run typecheck",
+    "test": "npm -w apps/api run test && npm -w apps/web run test",
+    "db:up": "node scripts/db.mjs up",
+    "db:down": "node scripts/db.mjs down",
+    "prisma:migrate": "npm -w apps/api run prisma:migrate",
+    "prisma:studio": "npm -w apps/api run prisma:studio",
+    "seed": "npm -w apps/api run seed"
+  },
+  "workspaces": [
+    "apps/*"
+  ],
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

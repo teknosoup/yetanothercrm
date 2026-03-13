@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  UNQUALIFIED
+  CONVERTED
+  LOST
+}
+
+enum OpportunityStage {
+  PROSPECTING
+  QUALIFICATION
+  PROPOSAL
+  NEGOTIATION
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  fullName     String
+  isActive     Boolean  @default(true)
+  roleId       String
+  role         Role     @relation(fields: [roleId], references: [id])
+  leadsOwned   Lead[]   @relation("LeadOwner")
+  accountsOwned Account[] @relation("AccountOwner")
+  contactsOwned Contact[] @relation("ContactOwner")
+  opportunitiesOwned Opportunity[] @relation("OpportunityOwner")
+  auditLogs    AuditLog[] @relation("AuditActor")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Role {
+  id              String           @id @default(uuid())
+  name            String           @unique
+  description     String?
+  users           User[]
+  rolePermissions RolePermission[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model Permission {
+  id              String           @id @default(uuid())
+  key             String           @unique
+  module          String
+  action          String
+  description     String?
+  rolePermissions RolePermission[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model Lead {
+  id          String     @id @default(uuid())
+  fullName    String
+  companyName String?
+  email       String?
+  phone       String?
+  source      String?
+  industry    String?
+  region      String?
+  status      LeadStatus @default(NEW)
+  score       Int?
+  notes       String?
+  ownerId     String
+  owner       User       @relation("LeadOwner", fields: [ownerId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Account {
+  id                 String       @id @default(uuid())
+  companyName         String
+  type               String?
+  segment            String?
+  industry           String?
+  address            String?
+  taxId              String?
+  status             String       @default("ACTIVE")
+  annualValueEstimate Int?
+  notes              String?
+  ownerId            String
+  owner              User         @relation("AccountOwner", fields: [ownerId], references: [id])
+  contacts           Contact[]
+  opportunities      Opportunity[]
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+}
+
+model Contact {
+  id               String    @id @default(uuid())
+  fullName         String
+  jobTitle         String?
+  email            String?
+  phone            String?
+  preferredChannel String?
+  status           String    @default("ACTIVE")
+  ownerId          String
+  owner            User      @relation("ContactOwner", fields: [ownerId], references: [id])
+  accountId        String?
+  account          Account?  @relation(fields: [accountId], references: [id])
+  opportunities    Opportunity[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model Opportunity {
+  id                String           @id @default(uuid())
+  opportunityName   String
+  stage             OpportunityStage @default(PROSPECTING)
+  estimatedValue    Int?
+  probability       Int?
+  expectedCloseDate DateTime?
+  lostReason        String?
+  wonDate           DateTime?
+  closedDate        DateTime?
+  ownerId           String
+  owner             User             @relation("OpportunityOwner", fields: [ownerId], references: [id])
+  accountId         String
+  account           Account          @relation(fields: [accountId], references: [id])
+  contactId         String?
+  contact           Contact?         @relation(fields: [contactId], references: [id])
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  actorUserId String?
+  actorUser   User?    @relation("AuditActor", fields: [actorUserId], references: [id])
+  action      String
+  entityType  String
+  entityId    String
+  before      Json?
+  after       Json?
+  ip          String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([actorUserId, createdAt])
+  @@index([createdAt])
+}
