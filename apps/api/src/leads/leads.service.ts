@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { LeadStatus, OpportunityStage, Prisma } from '@prisma/client';
+import { Lead, LeadStatus, OpportunityStage, Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
@@ -80,6 +80,69 @@ export class LeadsService {
     const lead = await this.prisma.lead.findUnique({ where: { id } });
     if (!lead) throw new NotFoundException('Lead not found');
     return lead;
+  }
+
+  async findDuplicates() {
+    const emailGroups = await this.prisma.lead.groupBy({
+      by: ['email'],
+      where: { email: { not: null } },
+      _count: { _all: true },
+    });
+    const emails = emailGroups
+      .filter((g) => (g._count._all ?? 0) > 1)
+      .map((g) => g.email)
+      .filter((v): v is string => Boolean(v));
+
+    const phoneGroups = await this.prisma.lead.groupBy({
+      by: ['phone'],
+      where: { phone: { not: null } },
+      _count: { _all: true },
+    });
+    const phones = phoneGroups
+      .filter((g) => (g._count._all ?? 0) > 1)
+      .map((g) => g.phone)
+      .filter((v): v is string => Boolean(v));
+
+    const emailLeads: Lead[] = emails.length
+      ? await this.prisma.lead.findMany({
+          where: { email: { in: emails } },
+          orderBy: { createdAt: 'asc' },
+        })
+      : [];
+
+    const phoneLeads: Lead[] = phones.length
+      ? await this.prisma.lead.findMany({
+          where: { phone: { in: phones } },
+          orderBy: { createdAt: 'asc' },
+        })
+      : [];
+
+    const byEmail = new Map<string, typeof emailLeads>();
+    for (const lead of emailLeads) {
+      if (!lead.email) continue;
+      const list = byEmail.get(lead.email) ?? [];
+      list.push(lead);
+      byEmail.set(lead.email, list);
+    }
+
+    const byPhone = new Map<string, typeof phoneLeads>();
+    for (const lead of phoneLeads) {
+      if (!lead.phone) continue;
+      const list = byPhone.get(lead.phone) ?? [];
+      list.push(lead);
+      byPhone.set(lead.phone, list);
+    }
+
+    return {
+      email: Array.from(byEmail.entries()).map(([key, leads]) => ({
+        key,
+        leadIds: leads.map((l) => l.id),
+      })),
+      phone: Array.from(byPhone.entries()).map(([key, leads]) => ({
+        key,
+        leadIds: leads.map((l) => l.id),
+      })),
+    };
   }
 
   async update(id: string, dto: UpdateLeadDto, actorUserId: string) {
@@ -195,5 +258,135 @@ export class LeadsService {
       contactId: result.contact.id,
       opportunityId: result.opportunity.id,
     };
+  }
+
+  async assign(id: string, ownerId: string | undefined, actorUserId: string) {
+    const existing = await this.prisma.lead.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Lead not found');
+
+    let nextOwnerId = ownerId;
+
+    if (nextOwnerId) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: nextOwnerId },
+        select: { id: true, isActive: true },
+      });
+      if (!user || !user.isActive) {
+        throw new BadRequestException('Owner user not found or inactive');
+      }
+    } else {
+      const salesRole = await this.prisma.role.findUnique({
+        where: { name: 'Sales' },
+        select: { id: true },
+      });
+      if (!salesRole) {
+        throw new BadRequestException('Sales role not found');
+      }
+
+      const salesUsers = await this.prisma.user.findMany({
+        where: { roleId: salesRole.id, isActive: true },
+        select: { id: true },
+      });
+      if (salesUsers.length === 0) {
+        throw new BadRequestException('No active sales users available');
+      }
+
+      const salesUserIds = salesUsers.map((u) => u.id);
+      const leadCounts = await this.prisma.lead.groupBy({
+        by: ['ownerId'],
+        where: {
+          ownerId: { in: salesUserIds },
+          status: { not: LeadStatus.CONVERTED },
+        },
+        _count: { _all: true },
+      });
+      const countByOwnerId = new Map(
+        leadCounts.map((row) => [row.ownerId, row._count._all]),
+      );
+
+      let bestOwnerId = salesUserIds[0];
+      let bestCount = countByOwnerId.get(bestOwnerId) ?? 0;
+      for (const candidateId of salesUserIds.slice(1)) {
+        const candidateCount = countByOwnerId.get(candidateId) ?? 0;
+        if (candidateCount < bestCount) {
+          bestOwnerId = candidateId;
+          bestCount = candidateCount;
+        }
+      }
+
+      nextOwnerId = bestOwnerId;
+    }
+
+    if (existing.ownerId === nextOwnerId) return existing;
+
+    const updated = await this.prisma.lead.update({
+      where: { id },
+      data: { ownerId: nextOwnerId },
+    });
+
+    await this.auditService.log({
+      actorUserId,
+      action: 'lead.assign',
+      entityType: 'lead',
+      entityId: updated.id,
+      before: existing,
+      after: updated,
+    });
+
+    return updated;
+  }
+
+  async merge(targetId: string, sourceLeadIds: string[], actorUserId: string) {
+    const uniqueSourceIds = Array.from(
+      new Set(sourceLeadIds.filter((id) => id !== targetId)),
+    );
+    if (uniqueSourceIds.length === 0) {
+      throw new BadRequestException('No source leads to merge');
+    }
+
+    const [target, sources] = await Promise.all([
+      this.prisma.lead.findUnique({ where: { id: targetId } }),
+      this.prisma.lead.findMany({ where: { id: { in: uniqueSourceIds } } }),
+    ]);
+    if (!target) throw new NotFoundException('Lead not found');
+    if (sources.length !== uniqueSourceIds.length) {
+      throw new BadRequestException('Some source leads not found');
+    }
+
+    const pick = (values: Array<string | null | undefined>) =>
+      values.map((v) => v?.trim()).find((v) => v && v.length > 0);
+
+    const mergedData = {
+      companyName:
+        target.companyName ?? pick(sources.map((s) => s.companyName)) ?? null,
+      email: target.email ?? pick(sources.map((s) => s.email)) ?? null,
+      phone: target.phone ?? pick(sources.map((s) => s.phone)) ?? null,
+      source: target.source ?? pick(sources.map((s) => s.source)) ?? null,
+      industry: target.industry ?? pick(sources.map((s) => s.industry)) ?? null,
+      region: target.region ?? pick(sources.map((s) => s.region)) ?? null,
+      score:
+        target.score ?? sources.find((s) => s.score != null)?.score ?? null,
+      notes: target.notes ?? pick(sources.map((s) => s.notes)) ?? null,
+    };
+
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const updatedLead = await tx.lead.update({
+        where: { id: targetId },
+        data: mergedData,
+      });
+      await tx.lead.deleteMany({ where: { id: { in: uniqueSourceIds } } });
+      return updatedLead;
+    });
+
+    await this.auditService.log({
+      actorUserId,
+      action: 'lead.merge',
+      entityType: 'lead',
+      entityId: targetId,
+      before: { target, sources },
+      after: updated,
+    });
+
+    return updated;
   }
 }

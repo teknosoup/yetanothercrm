@@ -8,8 +8,35 @@ async function main() {
     'lead.create',
     'lead.read',
     'lead.update',
+    'lead.assign',
+    'lead.merge',
     'lead.delete',
     'lead.convert',
+    'account.create',
+    'account.read',
+    'account.update',
+    'account.delete',
+    'contact.create',
+    'contact.read',
+    'contact.update',
+    'contact.delete',
+    'opportunity.create',
+    'opportunity.read',
+    'opportunity.update',
+    'opportunity.delete',
+    'task.create',
+    'task.read',
+    'task.update',
+    'task.delete',
+    'activity.create',
+    'activity.read',
+    'activity.update',
+    'activity.delete',
+    'note.create',
+    'note.read',
+    'note.update',
+    'note.delete',
+    'dashboard.read',
     'user.read',
     'user.manage',
     'role.manage',
@@ -27,7 +54,14 @@ async function main() {
     skipDuplicates: true,
   });
 
-  const [adminRole, salesRole, marketingRole] = await Promise.all([
+  const [
+    adminRole,
+    salesRole,
+    marketingRole,
+    customerServiceRole,
+    supervisorRole,
+    managementRole,
+  ] = await Promise.all([
     prisma.role.upsert({
       where: { name: 'Admin' },
       update: {},
@@ -42,6 +76,21 @@ async function main() {
       where: { name: 'Marketing' },
       update: {},
       create: { name: 'Marketing', description: 'Marketing user' },
+    }),
+    prisma.role.upsert({
+      where: { name: 'Customer Service' },
+      update: {},
+      create: { name: 'Customer Service', description: 'Support user' },
+    }),
+    prisma.role.upsert({
+      where: { name: 'Supervisor' },
+      update: {},
+      create: { name: 'Supervisor', description: 'Team lead / supervisor' },
+    }),
+    prisma.role.upsert({
+      where: { name: 'Management' },
+      update: {},
+      create: { name: 'Management', description: 'Management / executive view' },
     }),
   ]);
 
@@ -60,11 +109,62 @@ async function main() {
     'lead.read',
     'lead.update',
     'lead.convert',
+    'account.create',
+    'account.read',
+    'account.update',
+    'contact.create',
+    'contact.read',
+    'contact.update',
+    'opportunity.create',
+    'opportunity.read',
+    'opportunity.update',
   ]
     .map((k) => permissionByKey.get(k)?.id)
     .filter((id): id is string => Boolean(id));
 
-  const marketingPermissionIds = ['lead.create', 'lead.read']
+  const marketingPermissionIds = ['lead.create', 'lead.read', 'dashboard.read']
+    .map((k) => permissionByKey.get(k)?.id)
+    .filter((id): id is string => Boolean(id));
+
+  const customerServicePermissionIds = [
+    'lead.read',
+    'account.read',
+    'contact.read',
+    'contact.update',
+    'task.create',
+    'task.read',
+    'task.update',
+    'activity.create',
+    'activity.read',
+    'activity.update',
+  ]
+    .map((k) => permissionByKey.get(k)?.id)
+    .filter((id): id is string => Boolean(id));
+
+  const supervisorPermissionIds = [
+    'lead.read',
+    'lead.assign',
+    'lead.merge',
+    'account.read',
+    'contact.read',
+    'opportunity.read',
+    'task.read',
+    'activity.read',
+    'note.read',
+    'dashboard.read',
+    'user.read',
+  ]
+    .map((k) => permissionByKey.get(k)?.id)
+    .filter((id): id is string => Boolean(id));
+
+  const managementPermissionIds = [
+    'lead.read',
+    'account.read',
+    'contact.read',
+    'opportunity.read',
+    'dashboard.read',
+    'user.read',
+  ]
     .map((k) => permissionByKey.get(k)?.id)
     .filter((id): id is string => Boolean(id));
 
@@ -87,6 +187,30 @@ async function main() {
   await prisma.rolePermission.createMany({
     data: marketingPermissionIds.map((permissionId) => ({
       roleId: marketingRole.id,
+      permissionId,
+    })),
+    skipDuplicates: true,
+  });
+
+  await prisma.rolePermission.createMany({
+    data: customerServicePermissionIds.map((permissionId) => ({
+      roleId: customerServiceRole.id,
+      permissionId,
+    })),
+    skipDuplicates: true,
+  });
+
+  await prisma.rolePermission.createMany({
+    data: supervisorPermissionIds.map((permissionId) => ({
+      roleId: supervisorRole.id,
+      permissionId,
+    })),
+    skipDuplicates: true,
+  });
+
+  await prisma.rolePermission.createMany({
+    data: managementPermissionIds.map((permissionId) => ({
+      roleId: managementRole.id,
       permissionId,
     })),
     skipDuplicates: true,
@@ -115,4 +239,3 @@ main()
     await prisma.$disconnect();
     throw error;
   });
-

@@ -1,0 +1,539 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+  xmlns:o="urn:schemas-microsoft-com:office:office"
+  xmlns:x="urn:schemas-microsoft-com:office:excel"
+  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+  xmlns:html="http://www.w3.org/TR/REC-html40">
+  <Styles>
+    <Style ss:ID="Header">
+      <Font ss:Bold="1"/>
+      <Interior ss:Color="#E6E6E6" ss:Pattern="Solid"/>
+    </Style>
+    <Style ss:ID="Done">
+      <Interior ss:Color="#DFF0D8" ss:Pattern="Solid"/>
+    </Style>
+    <Style ss:ID="InProgress">
+      <Interior ss:Color="#FCF8E3" ss:Pattern="Solid"/>
+    </Style>
+    <Style ss:ID="Todo">
+      <Interior ss:Color="#F2DEDE" ss:Pattern="Solid"/>
+    </Style>
+  </Styles>
+
+  <Worksheet ss:Name="Tasks">
+    <Table>
+      <Row ss:StyleID="Header">
+        <Cell><Data ss:Type="String">ID</Data></Cell>
+        <Cell><Data ss:Type="String">Area</Data></Cell>
+        <Cell><Data ss:Type="String">Task</Data></Cell>
+        <Cell><Data ss:Type="String">PRD Ref</Data></Cell>
+        <Cell><Data ss:Type="String">Priority</Data></Cell>
+        <Cell><Data ss:Type="String">Status</Data></Cell>
+        <Cell><Data ss:Type="String">Notes</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">P1-001</Data></Cell>
+        <Cell><Data ss:Type="String">Platform</Data></Cell>
+        <Cell><Data ss:Type="String">Monorepo apps/api + apps/web, scripts dev/lint/typecheck/test</Data></Cell>
+        <Cell><Data ss:Type="String">7.1, 19.1-19.2</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Root scripts tersedia</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">P1-002</Data></Cell>
+        <Cell><Data ss:Type="String">Platform</Data></Cell>
+        <Cell><Data ss:Type="String">PostgreSQL dev runner (docker/podman) tanpa compose dependency</Data></Cell>
+        <Cell><Data ss:Type="String">7.1, 19.3</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">npm run db:up/db:down</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">AUTH-001</Data></Cell>
+        <Cell><Data ss:Type="String">Auth</Data></Cell>
+        <Cell><Data ss:Type="String">Login (JWT access token)</Data></Cell>
+        <Cell><Data ss:Type="String">8.1, 10.1</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">/auth/login</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">AUTH-002</Data></Cell>
+        <Cell><Data ss:Type="String">Auth</Data></Cell>
+        <Cell><Data ss:Type="String">Logout semantics (client-side token clear) + server-side invalidation (optional)</Data></Cell>
+        <Cell><Data ss:Type="String">8.1</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">POST /auth/logout tersedia (token clear di UI)</Data></Cell>
+      </Row>
+      <Row ss:StyleID="InProgress">
+        <Cell><Data ss:Type="String">AUTH-003</Data></Cell>
+        <Cell><Data ss:Type="String">Auth</Data></Cell>
+        <Cell><Data ss:Type="String">Password reset flow</Data></Cell>
+        <Cell><Data ss:Type="String">8.1, 8.10</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">In Progress</Data></Cell>
+        <Cell><Data ss:Type="String">API + migration; email delivery belum</Data></Cell>
+      </Row>
+      <Row ss:StyleID="InProgress">
+        <Cell><Data ss:Type="String">AUTH-004</Data></Cell>
+        <Cell><Data ss:Type="String">Auth</Data></Cell>
+        <Cell><Data ss:Type="String">Refresh token / session management</Data></Cell>
+        <Cell><Data ss:Type="String">8.1</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">In Progress</Data></Cell>
+        <Cell><Data ss:Type="String">Opaque refresh token + rotate + revoke (pending migrate)</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">RBAC-001</Data></Cell>
+        <Cell><Data ss:Type="String">RBAC</Data></Cell>
+        <Cell><Data ss:Type="String">Role-based access control + permission per action/module</Data></Cell>
+        <Cell><Data ss:Type="String">8.1, 10.1</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Guard + decorators + seed roles/permissions</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">RBAC-002</Data></Cell>
+        <Cell><Data ss:Type="String">RBAC</Data></Cell>
+        <Cell><Data ss:Type="String">Role minimum lengkap (Customer Service, Supervisor, Management)</Data></Cell>
+        <Cell><Data ss:Type="String">8.1</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Seed roles: Customer Service/Supervisor/Management</Data></Cell>
+      </Row>
+      <Row ss:StyleID="InProgress">
+        <Cell><Data ss:Type="String">RBAC-003</Data></Cell>
+        <Cell><Data ss:Type="String">RBAC</Data></Cell>
+        <Cell><Data ss:Type="String">Permission coverage untuk semua modul Phase 1 (contact/account/opportunity/task/activity/etc)</Data></Cell>
+        <Cell><Data ss:Type="String">11.3 core modules</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">In Progress</Data></Cell>
+        <Cell><Data ss:Type="String">Seed permission keys extended; enforcement per-module menyusul</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">LEAD-001</Data></Cell>
+        <Cell><Data ss:Type="String">Lead</Data></Cell>
+        <Cell><Data ss:Type="String">Create lead (fields minimum termasuk source/industry/region/score/notes)</Data></Cell>
+        <Cell><Data ss:Type="String">8.2, 10.2</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">DTO validation + persisted</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">LEAD-002</Data></Cell>
+        <Cell><Data ss:Type="String">Lead</Data></Cell>
+        <Cell><Data ss:Type="String">List leads dengan filtering/search/pagination</Data></Cell>
+        <Cell><Data ss:Type="String">10.1, 12.1</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">q/status/ownerId + skip/take</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">LEAD-003</Data></Cell>
+        <Cell><Data ss:Type="String">Lead</Data></Cell>
+        <Cell><Data ss:Type="String">Update lead (termasuk status dan ownerId via actor assignment manual)</Data></Cell>
+        <Cell><Data ss:Type="String">8.2, 10.2</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Status enum + audit log</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">LEAD-004</Data></Cell>
+        <Cell><Data ss:Type="String">Lead</Data></Cell>
+        <Cell><Data ss:Type="String">Delete lead + audit</Data></Cell>
+        <Cell><Data ss:Type="String">10.2, 8.11</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Hard delete</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">LEAD-005</Data></Cell>
+        <Cell><Data ss:Type="String">Lead</Data></Cell>
+        <Cell><Data ss:Type="String">Convert lead menjadi Account + Contact + Opportunity</Data></Cell>
+        <Cell><Data ss:Type="String">8.2, 9.1, 16.1</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Transaction + update lead status to CONVERTED</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">LEAD-006</Data></Cell>
+        <Cell><Data ss:Type="String">Lead</Data></Cell>
+        <Cell><Data ss:Type="String">Lead assignment workflow + assignment rules</Data></Cell>
+        <Cell><Data ss:Type="String">9.3, 18.2</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">POST /leads/:id/assign (manual/auto least-loaded sales) + audit</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">LEAD-007</Data></Cell>
+        <Cell><Data ss:Type="String">Lead</Data></Cell>
+        <Cell><Data ss:Type="String">Duplicate detection + merge duplicate lead</Data></Cell>
+        <Cell><Data ss:Type="String">10.2, 18.2</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">GET /leads/duplicates + POST /leads/:id/merge (email/phone)</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">CONTACT-001</Data></Cell>
+        <Cell><Data ss:Type="String">Contact</Data></Cell>
+        <Cell><Data ss:Type="String">CRUD contact + relasi ke account</Data></Cell>
+        <Cell><Data ss:Type="String">8.3, 10.3</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">CRUD /contacts + relasi accountId (RBAC + audit)</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CONTACT-002</Data></Cell>
+        <Cell><Data ss:Type="String">Contact</Data></Cell>
+        <Cell><Data ss:Type="String">Histori interaksi per contact</Data></Cell>
+        <Cell><Data ss:Type="String">8.3, 10.3</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Butuh notes + activities + audit timeline</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">ACCOUNT-001</Data></Cell>
+        <Cell><Data ss:Type="String">Account</Data></Cell>
+        <Cell><Data ss:Type="String">CRUD account/company + ownership</Data></Cell>
+        <Cell><Data ss:Type="String">8.4, 10.3</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">CRUD /accounts (ownerId=actor) (RBAC + audit)</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">ACCOUNT-002</Data></Cell>
+        <Cell><Data ss:Type="String">Account</Data></Cell>
+        <Cell><Data ss:Type="String">View relasi account → contacts/opportunities</Data></Cell>
+        <Cell><Data ss:Type="String">10.3</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">GET /accounts/:id/relations include contacts/opportunities</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">OPP-001</Data></Cell>
+        <Cell><Data ss:Type="String">Opportunity</Data></Cell>
+        <Cell><Data ss:Type="String">CRUD opportunity (buat dari lead atau account)</Data></Cell>
+        <Cell><Data ss:Type="String">8.5, 10.4</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">CRUD /opportunities (create from account/contact) (RBAC + audit)</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">OPP-002</Data></Cell>
+        <Cell><Data ss:Type="String">Opportunity</Data></Cell>
+        <Cell><Data ss:Type="String">Stage change + stage history</Data></Cell>
+        <Cell><Data ss:Type="String">10.4, 16.2</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">OpportunityStageHistory model + /opportunities/:id/stage (+ /stage-history)</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">OPP-003</Data></Cell>
+        <Cell><Data ss:Type="String">Opportunity</Data></Cell>
+        <Cell><Data ss:Type="String">Closed Won/Lost timestamps + owner + lost reason</Data></Cell>
+        <Cell><Data ss:Type="String">16.2, 8.5</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Stage change sets wonDate/closedDate + lostReason required for CLOSED_LOST</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">OPP-004</Data></Cell>
+        <Cell><Data ss:Type="String">Opportunity</Data></Cell>
+        <Cell><Data ss:Type="String">Weighted pipeline calculation</Data></Cell>
+        <Cell><Data ss:Type="String">10.4</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">probability * value</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">ACT-001</Data></Cell>
+        <Cell><Data ss:Type="String">Activity</Data></Cell>
+        <Cell><Data ss:Type="String">Activity types (call/email/meeting/etc) CRUD</Data></Cell>
+        <Cell><Data ss:Type="String">8.6, 10.5</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Belum ada model/API</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">TASK-001</Data></Cell>
+        <Cell><Data ss:Type="String">Task</Data></Cell>
+        <Cell><Data ss:Type="String">Task CRUD + status + due date</Data></Cell>
+        <Cell><Data ss:Type="String">8.7, 10.5</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Belum ada model/API</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">TASK-002</Data></Cell>
+        <Cell><Data ss:Type="String">Task</Data></Cell>
+        <Cell><Data ss:Type="String">Overdue tracking + dashboard task per user</Data></Cell>
+        <Cell><Data ss:Type="String">8.7, 16.3</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Query overdue + UI list</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">TASK-003</Data></Cell>
+        <Cell><Data ss:Type="String">Task</Data></Cell>
+        <Cell><Data ss:Type="String">Reminder sebelum jatuh tempo</Data></Cell>
+        <Cell><Data ss:Type="String">8.7, 10.5</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Butuh scheduler/queue + notification</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">NOTE-001</Data></Cell>
+        <Cell><Data ss:Type="String">Notes & Timeline</Data></Cell>
+        <Cell><Data ss:Type="String">Notes internal per entity + comment thread</Data></Cell>
+        <Cell><Data ss:Type="String">8.8, 10.1</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Butuh Note model/API</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">NOTE-002</Data></Cell>
+        <Cell><Data ss:Type="String">Notes & Timeline</Data></Cell>
+        <Cell><Data ss:Type="String">Timeline histori (status/owner/notes/activity) per entity</Data></Cell>
+        <Cell><Data ss:Type="String">8.8, 16.1</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Saat ini audit log internal belum diexpose</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">DASH-001</Data></Cell>
+        <Cell><Data ss:Type="String">Dashboard</Data></Cell>
+        <Cell><Data ss:Type="String">Dashboard metrics minimum (lead totals, conversion rate, pipeline by stage, overdue follow-up)</Data></Cell>
+        <Cell><Data ss:Type="String">8.9, 10.7</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Butuh endpoints agregasi + UI dashboard</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">DASH-002</Data></Cell>
+        <Cell><Data ss:Type="String">Reporting</Data></Cell>
+        <Cell><Data ss:Type="String">Filter dashboard (date range, team, owner, source, region, product/category)</Data></Cell>
+        <Cell><Data ss:Type="String">8.9</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Butuh modelling team/product kalau diperlukan</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">USER-001</Data></Cell>
+        <Cell><Data ss:Type="String">User Management</Data></Cell>
+        <Cell><Data ss:Type="String">Admin create user</Data></Cell>
+        <Cell><Data ss:Type="String">8.10</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Saat ini hanya endpoint /users/me</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">USER-002</Data></Cell>
+        <Cell><Data ss:Type="String">User Management</Data></Cell>
+        <Cell><Data ss:Type="String">Admin update role user + activate/deactivate user</Data></Cell>
+        <Cell><Data ss:Type="String">8.10</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Need endpoints + audit</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">USER-003</Data></Cell>
+        <Cell><Data ss:Type="String">User Management</Data></Cell>
+        <Cell><Data ss:Type="String">Admin reset password</Data></Cell>
+        <Cell><Data ss:Type="String">8.10</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Random password + email/notification</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">AUDIT-001</Data></Cell>
+        <Cell><Data ss:Type="String">Audit Trail</Data></Cell>
+        <Cell><Data ss:Type="String">Audit log storage (actor, before/after, entity, timestamp)</Data></Cell>
+        <Cell><Data ss:Type="String">8.11</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">AuditLog model + service</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">AUDIT-002</Data></Cell>
+        <Cell><Data ss:Type="String">Audit Trail</Data></Cell>
+        <Cell><Data ss:Type="String">Expose audit/timeline API per entity + admin viewer</Data></Cell>
+        <Cell><Data ss:Type="String">8.11, 8.8</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">UI + endpoint query by entityType/entityId</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">IMEX-001</Data></Cell>
+        <Cell><Data ss:Type="String">Import/Export</Data></Cell>
+        <Cell><Data ss:Type="String">Import CSV/XLSX untuk lead/contact/account</Data></Cell>
+        <Cell><Data ss:Type="String">8.12, 18.1</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Validasi + partial failure report</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">IMEX-002</Data></Cell>
+        <Cell><Data ss:Type="String">Import/Export</Data></Cell>
+        <Cell><Data ss:Type="String">Export data berdasarkan filter + template import standar</Data></Cell>
+        <Cell><Data ss:Type="String">8.12, 10.7</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">CSV export endpoint</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">NOTIF-001</Data></Cell>
+        <Cell><Data ss:Type="String">Notification</Data></Cell>
+        <Cell><Data ss:Type="String">Notifikasi: new assignment, task due, overdue, mention/comment, status change</Data></Cell>
+        <Cell><Data ss:Type="String">10.6, 18.2</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Butuh notification model + delivery channel</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">SEARCH-001</Data></Cell>
+        <Cell><Data ss:Type="String">Search/Filter</Data></Cell>
+        <Cell><Data ss:Type="String">Global search lintas entity</Data></Cell>
+        <Cell><Data ss:Type="String">10.1</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Indexing + unified endpoint</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">SEC-001</Data></Cell>
+        <Cell><Data ss:Type="String">Security</Data></Cell>
+        <Cell><Data ss:Type="String">Rate limiting untuk endpoint sensitif</Data></Cell>
+        <Cell><Data ss:Type="String">12.2</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">nestjs-throttler atau gateway</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">SEC-002</Data></Cell>
+        <Cell><Data ss:Type="String">Security</Data></Cell>
+        <Cell><Data ss:Type="String">Field masking (opsional) + audit log protection</Data></Cell>
+        <Cell><Data ss:Type="String">12.2</Data></Cell>
+        <Cell><Data ss:Type="String">Could Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Depends on compliance needs</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">PLUG-001</Data></Cell>
+        <Cell><Data ss:Type="String">Plugin Architecture</Data></Cell>
+        <Cell><Data ss:Type="String">Plugin registry module + DB tables (plugin metadata, status active/inactive)</Data></Cell>
+        <Cell><Data ss:Type="String">11.9, 16.5, 18.1</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Belum ada</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">PLUG-002</Data></Cell>
+        <Cell><Data ss:Type="String">Plugin Architecture</Data></Cell>
+        <Cell><Data ss:Type="String">Event bus internal + emit events minimum (lead.created/updated/assigned/converted, etc)</Data></Cell>
+        <Cell><Data ss:Type="String">11.7, 18.1</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Kontrak event + subscriber API</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">PLUG-003</Data></Cell>
+        <Cell><Data ss:Type="String">Plugin Architecture</Data></Cell>
+        <Cell><Data ss:Type="String">Backend plugin loader contract (register module, permission registration, lifecycle)</Data></Cell>
+        <Cell><Data ss:Type="String">11.5, 11.12</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Butuh desain extension points stabil</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">PLUG-004</Data></Cell>
+        <Cell><Data ss:Type="String">Plugin Architecture</Data></Cell>
+        <Cell><Data ss:Type="String">Frontend extension slots (menu/widget/tab/action)</Data></Cell>
+        <Cell><Data ss:Type="String">11.6, 18.2</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Registry + dynamic routing</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">NFR-001</Data></Cell>
+        <Cell><Data ss:Type="String">Non-Functional</Data></Cell>
+        <Cell><Data ss:Type="String">API versioning (v1) + docs (OpenAPI)</Data></Cell>
+        <Cell><Data ss:Type="String">12.5, 19.2</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Swagger module + route prefix</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">NFR-002</Data></Cell>
+        <Cell><Data ss:Type="String">Non-Functional</Data></Cell>
+        <Cell><Data ss:Type="String">Observability (structured logging, monitoring, error tracking)</Data></Cell>
+        <Cell><Data ss:Type="String">12.5</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Pino/OpenTelemetry/Sentry (opsional)</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">WEB-001</Data></Cell>
+        <Cell><Data ss:Type="String">Frontend</Data></Cell>
+        <Cell><Data ss:Type="String">Login page + token storage</Data></Cell>
+        <Cell><Data ss:Type="String">19.1</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Basic UI</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Done">
+        <Cell><Data ss:Type="String">WEB-002</Data></Cell>
+        <Cell><Data ss:Type="String">Frontend</Data></Cell>
+        <Cell><Data ss:Type="String">Lead list + create lead (terhubung ke API)</Data></Cell>
+        <Cell><Data ss:Type="String">8.2</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Belum ada edit/delete/convert di UI</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">WEB-003</Data></Cell>
+        <Cell><Data ss:Type="String">Frontend</Data></Cell>
+        <Cell><Data ss:Type="String">UI untuk convert lead + link ke Account/Contact/Opportunity hasil convert</Data></Cell>
+        <Cell><Data ss:Type="String">9.1, 16.1</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Endpoint sudah ada</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">WEB-004</Data></Cell>
+        <Cell><Data ss:Type="String">Frontend</Data></Cell>
+        <Cell><Data ss:Type="String">Pages: contacts, accounts, opportunities, tasks/activities, dashboard</Data></Cell>
+        <Cell><Data ss:Type="String">19.1 (recommended modules)</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Butuh API terlebih dulu</Data></Cell>
+      </Row>
+
+    </Table>
+    <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+      <FreezePanes/>
+      <FrozenNoSplit/>
+      <SplitHorizontal>1</SplitHorizontal>
+      <TopRowBottomPane>1</TopRowBottomPane>
+    </WorksheetOptions>
+  </Worksheet>
+</Workbook>

@@ -37,7 +37,10 @@ model User {
   accountsOwned Account[] @relation("AccountOwner")
   contactsOwned Contact[] @relation("ContactOwner")
   opportunitiesOwned Opportunity[] @relation("OpportunityOwner")
+  opportunityStageHistories OpportunityStageHistory[] @relation("OpportunityStageActor")
   auditLogs    AuditLog[] @relation("AuditActor")
+  passwordResetTokens PasswordResetToken[]
+  refreshTokens       RefreshToken[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
@@ -142,8 +145,24 @@ model Opportunity {
   account           Account          @relation(fields: [accountId], references: [id])
   contactId         String?
   contact           Contact?         @relation(fields: [contactId], references: [id])
+  stageHistory      OpportunityStageHistory[]
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
+}
+
+model OpportunityStageHistory {
+  id            String           @id @default(uuid())
+  opportunityId String
+  opportunity   Opportunity      @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  fromStage     OpportunityStage?
+  toStage       OpportunityStage
+  actorUserId   String?
+  actorUser     User?            @relation("OpportunityStageActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  note          String?
+  createdAt     DateTime         @default(now())
+
+  @@index([opportunityId, createdAt])
+  @@index([actorUserId, createdAt])
 }
 
 model AuditLog {
@@ -162,4 +181,29 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([actorUserId, createdAt])
   @@index([createdAt])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([userId, revokedAt])
 }

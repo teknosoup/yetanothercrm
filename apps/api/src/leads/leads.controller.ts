@@ -14,8 +14,10 @@ import { JwtAuthGuard } from '../common/auth/jwt-auth.guard';
 import { RequirePermissions } from '../common/auth/permissions.decorator';
 import { PermissionsGuard } from '../common/auth/permissions.guard';
 import type { RequestUser } from '../common/auth/request-user';
+import { AssignLeadDto } from './dto/assign-lead.dto';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { ListLeadsQuery } from './dto/list-leads.query';
+import { MergeLeadDto } from './dto/merge-lead.dto';
 import { UpdateLeadDto } from './dto/update-lead.dto';
 import { LeadsService } from './leads.service';
 
@@ -28,6 +30,12 @@ export class LeadsController {
   @Get()
   async list(@Query() query: ListLeadsQuery) {
     return this.leadsService.list(query);
+  }
+
+  @RequirePermissions('lead.read')
+  @Get('duplicates')
+  async duplicates() {
+    return this.leadsService.findDuplicates();
   }
 
   @RequirePermissions('lead.create')
@@ -62,5 +70,25 @@ export class LeadsController {
   @Post(':id/convert')
   async convert(@Param('id') id: string, @CurrentUser() user: RequestUser) {
     return this.leadsService.convert(id, user.userId);
+  }
+
+  @RequirePermissions('lead.assign')
+  @Post(':id/assign')
+  async assign(
+    @Param('id') id: string,
+    @Body() dto: AssignLeadDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.leadsService.assign(id, dto.ownerId, user.userId);
+  }
+
+  @RequirePermissions('lead.merge')
+  @Post(':id/merge')
+  async merge(
+    @Param('id') id: string,
+    @Body() dto: MergeLeadDto,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.leadsService.merge(id, dto.sourceLeadIds, user.userId);
   }
 }
