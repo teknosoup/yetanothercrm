@@ -1,8 +1,27 @@
+'use client';
+
 import Link from 'next/link';
+import { useSyncExternalStore } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { getToken } from '@/lib/api';
 
 export default function Home() {
+  const token = useSyncExternalStore(
+    (onStoreChange) => {
+      if (typeof window === 'undefined') return () => {};
+      const handle = () => onStoreChange();
+      window.addEventListener('storage', handle);
+      window.addEventListener('token-changed', handle);
+      return () => {
+        window.removeEventListener('storage', handle);
+        window.removeEventListener('token-changed', handle);
+      };
+    },
+    () => getToken(),
+    () => null,
+  );
+
   return (
     <div className="grid gap-6">
       <div className="space-y-1">
@@ -15,36 +34,25 @@ export default function Home() {
       <Card>
         <CardHeader>
           <CardTitle>Mulai</CardTitle>
-          <CardDescription>Login pakai user seed admin.</CardDescription>
+          <CardDescription>
+            {token ? 'Kamu sudah login. Mulai dari leads atau dashboard.' : 'Login pakai user seed admin.'}
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
-          <Button asChild>
-            <Link href="/login">Login</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/leads">Leads</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/accounts">Accounts</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/contacts">Contacts</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/opportunities">Opportunities</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/tasks">Tasks</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/activities">Activities</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/dashboard">Dashboard</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/plugins">Plugins</Link>
-          </Button>
+          {token ? (
+            <>
+              <Button asChild>
+                <Link href="/leads">Buka Leads</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/dashboard">Buka Dashboard</Link>
+              </Button>
+            </>
+          ) : (
+            <Button asChild>
+              <Link href="/login">Login</Link>
+            </Button>
+          )}
         </CardContent>
       </Card>
     </div>

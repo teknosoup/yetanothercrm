@@ -9,8 +9,10 @@ export function getToken() {
 
 export function setToken(token: string) {
   window.localStorage.setItem('token', token);
+  window.dispatchEvent(new Event('token-changed'));
 }
 
 export function clearToken() {
   window.localStorage.removeItem('token');
+  window.dispatchEvent(new Event('token-changed'));
 }

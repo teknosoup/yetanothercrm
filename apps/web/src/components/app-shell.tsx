@@ -2,7 +2,7 @@
  
  import Link from 'next/link';
  import { usePathname, useRouter } from 'next/navigation';
- import { useMemo, useState } from 'react';
+import { useMemo, useState, useSyncExternalStore } from 'react';
  import { Button } from '@/components/ui/button';
  import { cn } from '@/lib/utils';
  import { clearToken, getToken } from '@/lib/api';
@@ -33,9 +33,20 @@
      return (href: string) => pathname === href || pathname.startsWith(`${href}/`);
    }, [pathname]);
  
-   const hasToken = useMemo(() => {
-     return Boolean(getToken());
-   }, []);
+  const token = useSyncExternalStore(
+    (onStoreChange) => {
+      if (typeof window === 'undefined') return () => {};
+      const handle = () => onStoreChange();
+      window.addEventListener('storage', handle);
+      window.addEventListener('token-changed', handle);
+      return () => {
+        window.removeEventListener('storage', handle);
+        window.removeEventListener('token-changed', handle);
+      };
+    },
+    () => getToken(),
+    () => null,
+  );
  
    function logout() {
      clearToken();
@@ -77,8 +88,8 @@
              <div className="flex-1" />
            )}
  
-           <div className="ml-auto flex items-center gap-2">
-             {hasToken && !isAuthPage ? (
+          <div className="ml-auto flex items-center gap-2">
+            {token && !isAuthPage ? (
                <Button type="button" variant="outline" size="sm" onClick={logout}>
                  Logout
                </Button>
