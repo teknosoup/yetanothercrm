@@ -48,11 +48,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex justify-center">
-      <Card className="w-full max-w-md">
+    <div className="grid place-items-center py-12">
+      <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
-          <CardTitle>Login</CardTitle>
-          <CardDescription>Masuk untuk akses CRM.</CardDescription>
+          <CardTitle className="text-xl">Login</CardTitle>
+          <CardDescription>Masuk untuk akses YetAnotherCRM.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit} className="grid gap-4">

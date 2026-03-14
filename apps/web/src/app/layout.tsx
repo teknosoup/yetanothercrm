@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,46 +31,48 @@ export default function RootLayout({
         className={cn(
           geistSans.variable,
           geistMono.variable,
-          'min-h-screen bg-background font-sans antialiased',
+          'min-h-screen bg-muted/30 font-sans antialiased',
         )}
       >
-        <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="container flex h-14 items-center justify-between">
-            <Link href="/" className="font-semibold">
-              YetAnotherCRM
-            </Link>
-            <nav className="hidden gap-4 text-sm text-muted-foreground md:flex">
-              <Link href="/leads" className="hover:text-foreground">
-                Leads
+        <div className="flex min-h-screen flex-col">
+          <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="container flex h-14 items-center justify-between gap-3">
+              <Link href="/" className="text-sm font-semibold tracking-tight">
+                YetAnotherCRM
               </Link>
-              <Link href="/accounts" className="hover:text-foreground">
-                Accounts
-              </Link>
-              <Link href="/contacts" className="hover:text-foreground">
-                Contacts
-              </Link>
-              <Link href="/opportunities" className="hover:text-foreground">
-                Opportunities
-              </Link>
-              <Link href="/tasks" className="hover:text-foreground">
-                Tasks
-              </Link>
-              <Link href="/activities" className="hover:text-foreground">
-                Activities
-              </Link>
-              <Link href="/dashboard" className="hover:text-foreground">
-                Dashboard
-              </Link>
-              <Link href="/plugins" className="hover:text-foreground">
-                Plugins
-              </Link>
-            </nav>
-            <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground">
-              Login
-            </Link>
-          </div>
-        </header>
-        <main className="container py-6">{children}</main>
+              <nav className="hidden items-center gap-1 md:flex">
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/leads">Leads</Link>
+                </Button>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/accounts">Accounts</Link>
+                </Button>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/contacts">Contacts</Link>
+                </Button>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/opportunities">Opportunities</Link>
+                </Button>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/tasks">Tasks</Link>
+                </Button>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/activities">Activities</Link>
+                </Button>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/dashboard">Dashboard</Link>
+                </Button>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/plugins">Plugins</Link>
+                </Button>
+              </nav>
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/login">Login</Link>
+              </Button>
+            </div>
+          </header>
+          <main className="container flex-1 py-8">{children}</main>
+        </div>
       </body>
     </html>
   );
