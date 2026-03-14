@@ -17,6 +17,7 @@ type ContactDetail = {
   preferredChannel: string | null;
   status: string;
   ownerId: string;
+  owner?: { id: string; fullName: string; email: string } | null;
   accountId: string | null;
   account?: { id: string; companyName: string } | null;
   createdAt: string;
@@ -140,7 +141,7 @@ export default function ContactDetailPage() {
 
                 <div className="grid grid-cols-[160px_1fr] gap-x-4">
                   <dt className="text-sm text-muted-foreground">Owner</dt>
-                  <dd className="font-medium">{item.ownerId}</dd>
+                  <dd className="font-medium">{item.owner?.fullName ?? item.ownerId}</dd>
                 </div>
 
                 <div className="grid grid-cols-[160px_1fr] gap-x-4">

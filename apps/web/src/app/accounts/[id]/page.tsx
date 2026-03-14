@@ -20,6 +20,7 @@ type AccountDetail = {
   annualValueEstimate: number | null;
   notes: string | null;
   ownerId: string;
+  owner?: { id: string; fullName: string; email: string } | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -113,7 +114,7 @@ export default function AccountDetailPage() {
 
                 <div className="grid grid-cols-[160px_1fr] gap-x-4">
                   <dt className="text-sm text-muted-foreground">Owner</dt>
-                  <dd className="font-medium">{item.ownerId}</dd>
+                  <dd className="font-medium">{item.owner?.fullName ?? item.ownerId}</dd>
                 </div>
 
                 <div className="grid grid-cols-[160px_1fr] gap-x-4">
