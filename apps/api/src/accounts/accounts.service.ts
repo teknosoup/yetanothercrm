@@ -394,7 +394,12 @@ export class AccountsService {
   }
 
   async findOne(id: string) {
-    const account = await this.prisma.account.findUnique({ where: { id } });
+    const account = await this.prisma.account.findUnique({
+      where: { id },
+      include: {
+        owner: { select: { id: true, fullName: true, email: true } },
+      },
+    });
     if (!account) throw new NotFoundException('Account not found');
     return account;
   }

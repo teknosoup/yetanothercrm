@@ -406,6 +406,7 @@ export class ContactsService {
       where: { id },
       include: {
         account: { select: { id: true, companyName: true } },
+        owner: { select: { id: true, fullName: true, email: true } },
       },
     });
     if (!contact) throw new NotFoundException('Contact not found');
