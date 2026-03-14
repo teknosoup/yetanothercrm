@@ -50,18 +50,20 @@ function outFile(name) {
 }
 
 async function capture(page, route, fileName) {
-  await page.goto(`${webBaseUrl}${route}`, { waitUntil: 'networkidle' });
-  await page.waitForTimeout(500);
+  await page.goto(`${webBaseUrl}${route}`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(800);
   await page.screenshot({ path: outFile(fileName), fullPage: true });
 }
 
 async function login(page) {
-  await page.goto(`${webBaseUrl}/login`, { waitUntil: 'networkidle' });
+  await page.goto(`${webBaseUrl}/login`, { waitUntil: 'domcontentloaded' });
   await page.fill('input[type="email"]', 'admin@example.com');
   await page.fill('input[type="password"]', 'Admin123!');
   await page.click('button[type="submit"]');
-  await page.waitForURL('**/leads', { timeout: 30_000 });
-  await page.waitForTimeout(500);
+  await page.waitForFunction(() => window.location.pathname === '/leads', null, {
+    timeout: 30_000,
+  });
+  await page.waitForTimeout(800);
 }
 
 function resolveApiBaseUrl() {

@@ -4,6 +4,19 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { clearToken, getApiBaseUrl, getToken } from '@/lib/api';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 type Activity = {
   id: string;
@@ -107,12 +120,18 @@ export default function ActivitiesPage() {
   }
 
   return (
-    <main style={{ padding: 24 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <h1>Activities</h1>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <Link href="/">Home</Link>
-          <button
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-xl font-semibold tracking-tight">Activities</h1>
+          <p className="text-sm text-muted-foreground">Log aktivitas (call/email/meeting/note).</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/">Home</Link>
+          </Button>
+          <Button
+            variant="secondary"
             type="button"
             onClick={() => {
               clearToken();
@@ -120,67 +139,83 @@ export default function ActivitiesPage() {
             }}
           >
             Logout
-          </button>
+          </Button>
         </div>
       </div>
 
-      <form onSubmit={onCreate} style={{ display: 'grid', gap: 12, maxWidth: 520 }}>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Type</span>
-          <select value={type} onChange={(e) => setType(e.target.value)}>
-            <option value="CALL">CALL</option>
-            <option value="EMAIL">EMAIL</option>
-            <option value="MEETING">MEETING</option>
-            <option value="NOTE">NOTE</option>
-            <option value="FOLLOW_UP">FOLLOW_UP</option>
-            <option value="OTHER">OTHER</option>
-          </select>
-        </label>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Subject</span>
-          <input value={subject} onChange={(e) => setSubject(e.target.value)} required />
-        </label>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Occurred At (optional)</span>
-          <input
-            type="datetime-local"
-            value={occurredAt}
-            onChange={(e) => setOccurredAt(e.target.value)}
-          />
-        </label>
-        <button type="submit">Create Activity</button>
-      </form>
+      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <Card>
+          <CardHeader>
+            <CardTitle>Create Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={onCreate} className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="type">Type</Label>
+                <select
+                  id="type"
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="CALL">CALL</option>
+                  <option value="EMAIL">EMAIL</option>
+                  <option value="MEETING">MEETING</option>
+                  <option value="NOTE">NOTE</option>
+                  <option value="FOLLOW_UP">FOLLOW_UP</option>
+                  <option value="OTHER">OTHER</option>
+                </select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="subject">Subject</Label>
+                <Input id="subject" value={subject} onChange={(e) => setSubject(e.target.value)} required />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="occurredAt">Occurred At (optional)</Label>
+                <Input
+                  id="occurredAt"
+                  type="datetime-local"
+                  value={occurredAt}
+                  onChange={(e) => setOccurredAt(e.target.value)}
+                />
+              </div>
+              <Button type="submit">Create</Button>
+              {error ? <div className="text-sm text-destructive">{error}</div> : null}
+            </form>
+          </CardContent>
+        </Card>
 
-      <div style={{ marginTop: 24 }}>
-        {loading ? <div>Loading…</div> : null}
-        {error ? <div style={{ color: 'crimson' }}>{error}</div> : null}
-        <table style={{ width: '100%', marginTop: 12, borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-                Type
-              </th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-                Subject
-              </th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-                Occurred
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((a) => (
-              <tr key={a.id}>
-                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>{a.type}</td>
-                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>{a.subject}</td>
-                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>
-                  {a.occurredAt ? new Date(a.occurredAt).toLocaleString() : ''}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <Card>
+          <CardHeader>
+            <CardTitle>List</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {loading ? <div className="text-sm text-muted-foreground">Loading…</div> : null}
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Subject</TableHead>
+                  <TableHead>Occurred</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {items.map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell>
+                      <Badge variant="outline">{a.type}</Badge>
+                    </TableCell>
+                    <TableCell className="font-medium">{a.subject}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {a.occurredAt ? new Date(a.occurredAt).toLocaleString() : ''}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
-    </main>
+    </div>
   );
 }

@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { clearToken, getApiBaseUrl, getToken } from '@/lib/api';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type DashboardMetrics = {
   generatedAt: string;
@@ -57,12 +59,21 @@ export default function DashboardPage() {
   }, [load]);
 
   return (
-    <main style={{ padding: 24 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <h1>Dashboard</h1>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <Link href="/">Home</Link>
-          <button
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-xl font-semibold tracking-tight">Dashboard</h1>
+          <p className="text-sm text-muted-foreground">Ringkasan data CRM.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/">Home</Link>
+          </Button>
+          <Button type="button" variant="outline" onClick={() => void load()} disabled={loading}>
+            Refresh
+          </Button>
+          <Button
+            variant="secondary"
             type="button"
             onClick={() => {
               clearToken();
@@ -70,22 +81,23 @@ export default function DashboardPage() {
             }}
           >
             Logout
-          </button>
+          </Button>
         </div>
       </div>
 
-      <button type="button" onClick={() => void load()} disabled={loading}>
-        Refresh
-      </button>
+      {loading ? <div className="text-sm text-muted-foreground">Loading…</div> : null}
+      {error ? <div className="text-sm text-destructive">{error}</div> : null}
 
-      {loading ? <div style={{ marginTop: 12 }}>Loading…</div> : null}
-      {error ? (
-        <div style={{ marginTop: 12, color: 'crimson' }}>{error}</div>
-      ) : null}
-
-      <pre style={{ marginTop: 16, whiteSpace: 'pre-wrap' }}>
-        {data ? JSON.stringify(data, null, 2) : ''}
-      </pre>
-    </main>
+      <Card>
+        <CardHeader>
+          <CardTitle>Metrics</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <pre className="max-h-[520px] overflow-auto rounded-md bg-muted p-4 text-sm">
+            {data ? JSON.stringify(data, null, 2) : ''}
+          </pre>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

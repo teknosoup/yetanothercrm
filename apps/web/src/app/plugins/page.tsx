@@ -5,6 +5,17 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { clearToken, getApiBaseUrl, getToken } from '@/lib/api';
 import { getWebPlugin, listWebPlugins } from './registry';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 type PluginRow = {
   id: string;
@@ -64,12 +75,18 @@ export default function PluginsPage() {
   }, []);
 
   return (
-    <main style={{ padding: 24 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <h1>Plugins</h1>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <Link href="/">Home</Link>
-          <button
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-xl font-semibold tracking-tight">Plugins</h1>
+          <p className="text-sm text-muted-foreground">Daftar plugin backend + ketersediaan UI.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/">Home</Link>
+          </Button>
+          <Button
+            variant="secondary"
             type="button"
             onClick={() => {
               clearToken();
@@ -77,82 +94,100 @@ export default function PluginsPage() {
             }}
           >
             Logout
-          </button>
+          </Button>
         </div>
       </div>
 
-      {loading ? <div>Loading…</div> : null}
-      {error ? <div style={{ color: 'crimson' }}>{error}</div> : null}
+      {loading ? <div className="text-sm text-muted-foreground">Loading…</div> : null}
+      {error ? <div className="text-sm text-destructive">{error}</div> : null}
 
-      <table style={{ width: '100%', marginTop: 12, borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-              Key
-            </th>
-            <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-              Name
-            </th>
-            <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-              Version
-            </th>
-            <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-              Active
-            </th>
-            <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-              UI
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((p) => (
-            <tr key={p.id}>
-              <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>
-                <Link href={`/plugins/${p.key}`}>{p.key}</Link>
-              </td>
-              <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>{p.name}</td>
-              <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>{p.version ?? ''}</td>
-              <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>
-                {p.isActive ? 'Yes' : 'No'}
-              </td>
-              <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>
-                {availableUiKeys.has(p.key) ? 'Available' : ''}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="grid gap-6 lg:grid-cols-3 lg:items-start">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Installed</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Key</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Version</TableHead>
+                  <TableHead>Active</TableHead>
+                  <TableHead>UI</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {items.map((p) => (
+                  <TableRow key={p.id}>
+                    <TableCell className="font-medium">
+                      <Link href={`/plugins/${p.key}`} className="hover:underline">
+                        {p.key}
+                      </Link>
+                    </TableCell>
+                    <TableCell>{p.name}</TableCell>
+                    <TableCell className="text-muted-foreground">{p.version ?? ''}</TableCell>
+                    <TableCell>
+                      <Badge variant={p.isActive ? 'default' : 'secondary'}>
+                        {p.isActive ? 'Yes' : 'No'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {availableUiKeys.has(p.key) ? <Badge variant="outline">Available</Badge> : ''}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
 
-      <div style={{ marginTop: 24 }}>
-        <h2>UI Registry</h2>
-        <div style={{ display: 'grid', gap: 8, marginTop: 8 }}>
-          {listWebPlugins().length === 0 ? (
-            <div>No web plugins registered.</div>
-          ) : (
-            listWebPlugins().map((p) => (
-              <div key={p.key}>
-                <Link href={`/plugins/${p.key}`}>{p.displayName}</Link>
-                <span style={{ marginLeft: 8, color: '#666' }}>{p.key}</span>
-              </div>
-            ))
-          )}
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>UI Registry</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-2 text-sm">
+            {listWebPlugins().length === 0 ? (
+              <div className="text-muted-foreground">No web plugins registered.</div>
+            ) : (
+              listWebPlugins().map((p) => (
+                <div key={p.key} className="flex items-center justify-between gap-2">
+                  <Link href={`/plugins/${p.key}`} className="hover:underline">
+                    {p.displayName}
+                  </Link>
+                  <span className="text-muted-foreground">{p.key}</span>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
-        <div style={{ marginTop: 16 }}>
-          <h3>Menu Slot Preview</h3>
+      <Card>
+        <CardHeader>
+          <CardTitle>Menu Slot Preview</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2 text-sm">
           {items
             .filter((p) => p.isActive)
             .map((p) => getWebPlugin(p.key))
             .filter((p): p is NonNullable<typeof p> => Boolean(p))
-            .flatMap((p) => p.menuItems ?? [])
-            .map((m) => (
-              <div key={`${m.href}:${m.label}`}>
-                <Link href={m.href}>{m.label}</Link>
-              </div>
-            ))}
-        </div>
-      </div>
-    </main>
+            .flatMap((p) => p.menuItems ?? []).length ? (
+            items
+              .filter((p) => p.isActive)
+              .map((p) => getWebPlugin(p.key))
+              .filter((p): p is NonNullable<typeof p> => Boolean(p))
+              .flatMap((p) => p.menuItems ?? [])
+              .map((m) => (
+                <Button key={`${m.href}:${m.label}`} variant="outline" size="sm" asChild>
+                  <Link href={m.href}>{m.label}</Link>
+                </Button>
+              ))
+          ) : (
+            <div className="text-muted-foreground">(none)</div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
-

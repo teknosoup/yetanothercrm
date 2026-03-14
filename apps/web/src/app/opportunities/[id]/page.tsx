@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { clearToken, getApiBaseUrl, getToken } from '@/lib/api';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function OpportunityDetailPage({
   params,
@@ -52,16 +54,35 @@ export default function OpportunityDetailPage({
   }, [apiBaseUrl, params.id, router]);
 
   return (
-    <main style={{ padding: 24 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <h1>Opportunity</h1>
-        <Link href="/leads">Back</Link>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-xl font-semibold tracking-tight">Opportunity</h1>
+          <p className="text-sm text-muted-foreground">{params.id}</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/opportunities">Back</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/">Home</Link>
+          </Button>
+        </div>
       </div>
-      {loading ? <div>Loading…</div> : null}
-      {error ? <div style={{ color: 'crimson' }}>{error}</div> : null}
-      <pre style={{ marginTop: 16, whiteSpace: 'pre-wrap' }}>
-        {item ? JSON.stringify(item, null, 2) : ''}
-      </pre>
-    </main>
+
+      {loading ? <div className="text-sm text-muted-foreground">Loading…</div> : null}
+      {error ? <div className="text-sm text-destructive">{error}</div> : null}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Detail</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <pre className="max-h-[520px] overflow-auto rounded-md bg-muted p-4 text-sm">
+            {item ? JSON.stringify(item, null, 2) : ''}
+          </pre>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
