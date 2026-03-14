@@ -302,24 +302,24 @@
         <Cell><Data ss:Type="String">Todo</Data></Cell>
         <Cell><Data ss:Type="String">Butuh Note model/API</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">NOTE-002</Data></Cell>
         <Cell><Data ss:Type="String">Notes & Timeline</Data></Cell>
         <Cell><Data ss:Type="String">Timeline histori (status/owner/notes/activity) per entity</Data></Cell>
         <Cell><Data ss:Type="String">8.8, 16.1</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Saat ini audit log internal belum diexpose</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">GET /leads/:id/timeline, /accounts/:id/timeline, /contacts/:id/timeline, /opportunities/:id/timeline (audit + activity + task + stage history)</Data></Cell>
       </Row>
 
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">DASH-001</Data></Cell>
         <Cell><Data ss:Type="String">Dashboard</Data></Cell>
         <Cell><Data ss:Type="String">Dashboard metrics minimum (lead totals, conversion rate, pipeline by stage, overdue follow-up)</Data></Cell>
         <Cell><Data ss:Type="String">8.9, 10.7</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Butuh endpoints agregasi + UI dashboard</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">GET /dashboard/metrics (leads totals+conversion, pipeline by stage, overdue tasks per owner)</Data></Cell>
       </Row>
       <Row ss:StyleID="Todo">
         <Cell><Data ss:Type="String">DASH-002</Data></Cell>
@@ -331,32 +331,32 @@
         <Cell><Data ss:Type="String">Butuh modelling team/product kalau diperlukan</Data></Cell>
       </Row>
 
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">USER-001</Data></Cell>
         <Cell><Data ss:Type="String">User Management</Data></Cell>
         <Cell><Data ss:Type="String">Admin create user</Data></Cell>
         <Cell><Data ss:Type="String">8.10</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Saat ini hanya endpoint /users/me</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">POST /users (RequirePermissions: user.manage)</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">USER-002</Data></Cell>
         <Cell><Data ss:Type="String">User Management</Data></Cell>
         <Cell><Data ss:Type="String">Admin update role user + activate/deactivate user</Data></Cell>
         <Cell><Data ss:Type="String">8.10</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Need endpoints + audit</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">PATCH /users/:id (roleId/isActive/fullName) + audit + revoke refresh tokens on deactivate</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">USER-003</Data></Cell>
         <Cell><Data ss:Type="String">User Management</Data></Cell>
         <Cell><Data ss:Type="String">Admin reset password</Data></Cell>
         <Cell><Data ss:Type="String">8.10</Data></Cell>
         <Cell><Data ss:Type="String">Should Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Random password + email/notification</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">POST /users/:id/reset-password (revokes refresh tokens) + audit</Data></Cell>
       </Row>
 
       <Row ss:StyleID="Done">

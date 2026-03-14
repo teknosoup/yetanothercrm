@@ -20,11 +20,16 @@ import { ListLeadsQuery } from './dto/list-leads.query';
 import { MergeLeadDto } from './dto/merge-lead.dto';
 import { UpdateLeadDto } from './dto/update-lead.dto';
 import { LeadsService } from './leads.service';
+import { ListTimelineQuery } from '../timeline/dto/list-timeline.query';
+import { TimelineService } from '../timeline/timeline.service';
 
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('leads')
 export class LeadsController {
-  constructor(private readonly leadsService: LeadsService) {}
+  constructor(
+    private readonly leadsService: LeadsService,
+    private readonly timelineService: TimelineService,
+  ) {}
 
   @RequirePermissions('lead.read')
   @Get()
@@ -48,6 +53,12 @@ export class LeadsController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.leadsService.findOne(id);
+  }
+
+  @RequirePermissions('lead.read')
+  @Get(':id/timeline')
+  async timeline(@Param('id') id: string, @Query() query: ListTimelineQuery) {
+    return this.timelineService.lead(id, query);
   }
 
   @RequirePermissions('lead.update')

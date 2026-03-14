@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { AuditModule } from './audit/audit.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 import { ContactsModule } from './contacts/contacts.module';
 import { LeadsModule } from './leads/leads.module';
 import { OpportunitiesModule } from './opportunities/opportunities.module';
@@ -20,6 +21,7 @@ import { UsersModule } from './users/users.module';
     AuditModule,
     AuthModule,
     UsersModule,
+    DashboardModule,
     LeadsModule,
     AccountsModule,
     ContactsModule,

@@ -19,11 +19,16 @@ import { CreateOpportunityDto } from './dto/create-opportunity.dto';
 import { ListOpportunitiesQuery } from './dto/list-opportunities.query';
 import { UpdateOpportunityDto } from './dto/update-opportunity.dto';
 import { OpportunitiesService } from './opportunities.service';
+import { ListTimelineQuery } from '../timeline/dto/list-timeline.query';
+import { TimelineService } from '../timeline/timeline.service';
 
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('opportunities')
 export class OpportunitiesController {
-  constructor(private readonly opportunitiesService: OpportunitiesService) {}
+  constructor(
+    private readonly opportunitiesService: OpportunitiesService,
+    private readonly timelineService: TimelineService,
+  ) {}
 
   @RequirePermissions('opportunity.read')
   @Get()
@@ -44,6 +49,12 @@ export class OpportunitiesController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.opportunitiesService.findOne(id);
+  }
+
+  @RequirePermissions('opportunity.read')
+  @Get(':id/timeline')
+  async timeline(@Param('id') id: string, @Query() query: ListTimelineQuery) {
+    return this.timelineService.opportunity(id, query);
   }
 
   @RequirePermissions('opportunity.update')

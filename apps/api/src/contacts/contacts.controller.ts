@@ -18,11 +18,16 @@ import { ContactsService } from './contacts.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { ListContactsQuery } from './dto/list-contacts.query';
 import { UpdateContactDto } from './dto/update-contact.dto';
+import { ListTimelineQuery } from '../timeline/dto/list-timeline.query';
+import { TimelineService } from '../timeline/timeline.service';
 
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('contacts')
 export class ContactsController {
-  constructor(private readonly contactsService: ContactsService) {}
+  constructor(
+    private readonly contactsService: ContactsService,
+    private readonly timelineService: TimelineService,
+  ) {}
 
   @RequirePermissions('contact.read')
   @Get()
@@ -49,6 +54,12 @@ export class ContactsController {
   @Get(':id/history')
   async history(@Param('id') id: string) {
     return this.contactsService.history(id);
+  }
+
+  @RequirePermissions('contact.read')
+  @Get(':id/timeline')
+  async timeline(@Param('id') id: string, @Query() query: ListTimelineQuery) {
+    return this.timelineService.contact(id, query);
   }
 
   @RequirePermissions('contact.update')
