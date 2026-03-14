@@ -14,9 +14,6 @@ import { UpdateNoteDto } from './dto/update-note.dto';
 
 const authorSelect = { id: true, email: true, fullName: true } as const;
 
-type NoteWithAuthor = Prisma.NoteGetPayload<{
-  include: { authorUser: { select: typeof authorSelect } };
-}>;
 type NoteCommentWithAuthor = Prisma.NoteCommentGetPayload<{
   include: { authorUser: { select: typeof authorSelect } };
 }>;
