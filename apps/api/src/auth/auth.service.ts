@@ -100,6 +100,10 @@ export class AuthService {
         where: { id: resetToken.id },
         data: { usedAt: now },
       }),
+      this.prisma.refreshToken.updateMany({
+        where: { userId: resetToken.userId, revokedAt: null },
+        data: { revokedAt: now },
+      }),
     ]);
 
     return { ok: true };

@@ -70,23 +70,23 @@
         <Cell><Data ss:Type="String">Done</Data></Cell>
         <Cell><Data ss:Type="String">POST /auth/logout tersedia (token clear di UI)</Data></Cell>
       </Row>
-      <Row ss:StyleID="InProgress">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">AUTH-003</Data></Cell>
         <Cell><Data ss:Type="String">Auth</Data></Cell>
         <Cell><Data ss:Type="String">Password reset flow</Data></Cell>
         <Cell><Data ss:Type="String">8.1, 8.10</Data></Cell>
         <Cell><Data ss:Type="String">Should Have</Data></Cell>
-        <Cell><Data ss:Type="String">In Progress</Data></Cell>
-        <Cell><Data ss:Type="String">API + migration; email delivery belum</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">POST /auth/password/forgot + /auth/password/reset (token hashed + expiry + revoke refresh tokens; email delivery belum)</Data></Cell>
       </Row>
-      <Row ss:StyleID="InProgress">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">AUTH-004</Data></Cell>
         <Cell><Data ss:Type="String">Auth</Data></Cell>
         <Cell><Data ss:Type="String">Refresh token / session management</Data></Cell>
         <Cell><Data ss:Type="String">8.1</Data></Cell>
         <Cell><Data ss:Type="String">Should Have</Data></Cell>
-        <Cell><Data ss:Type="String">In Progress</Data></Cell>
-        <Cell><Data ss:Type="String">Opaque refresh token + rotate + revoke (pending migrate)</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">POST /auth/refresh rotate + revoke; POST /auth/logout revoke by tokenHash</Data></Cell>
       </Row>
 
       <Row ss:StyleID="Done">
@@ -107,14 +107,14 @@
         <Cell><Data ss:Type="String">Done</Data></Cell>
         <Cell><Data ss:Type="String">Seed roles: Customer Service/Supervisor/Management</Data></Cell>
       </Row>
-      <Row ss:StyleID="InProgress">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">RBAC-003</Data></Cell>
         <Cell><Data ss:Type="String">RBAC</Data></Cell>
         <Cell><Data ss:Type="String">Permission coverage untuk semua modul Phase 1 (contact/account/opportunity/task/activity/etc)</Data></Cell>
         <Cell><Data ss:Type="String">11.3 core modules</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">In Progress</Data></Cell>
-        <Cell><Data ss:Type="String">Seed permission keys extended; enforcement per-module menyusul</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Seed permission keys + RequirePermissions applied across core controllers (lead/account/contact/opportunity/task/activity/note/dashboard/user/audit)</Data></Cell>
       </Row>
 
       <Row ss:StyleID="Done">
