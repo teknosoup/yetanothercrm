@@ -10,6 +10,7 @@ import { ContactsModule } from './contacts/contacts.module';
 import { LeadsModule } from './leads/leads.module';
 import { OpportunitiesModule } from './opportunities/opportunities.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { TasksModule } from './tasks/tasks.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -24,6 +25,7 @@ import { UsersModule } from './users/users.module';
     ContactsModule,
     OpportunitiesModule,
     ActivitiesModule,
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

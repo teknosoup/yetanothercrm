@@ -34,6 +34,13 @@ enum ActivityType {
   OTHER
 }
 
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  CANCELED
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -47,6 +54,7 @@ model User {
   contactsOwned Contact[] @relation("ContactOwner")
   opportunitiesOwned Opportunity[] @relation("OpportunityOwner")
   activitiesOwned Activity[] @relation("ActivityOwner")
+  tasksOwned Task[] @relation("TaskOwner")
   opportunityStageHistories OpportunityStageHistory[] @relation("OpportunityStageActor")
   auditLogs    AuditLog[] @relation("AuditActor")
   passwordResetTokens PasswordResetToken[]
@@ -100,6 +108,7 @@ model Lead {
   ownerId     String
   owner       User       @relation("LeadOwner", fields: [ownerId], references: [id])
   activities  Activity[] @relation("LeadActivities")
+  tasks       Task[]     @relation("LeadTasks")
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 }
@@ -120,6 +129,7 @@ model Account {
   contacts           Contact[]
   opportunities      Opportunity[]
   activities         Activity[]   @relation("AccountActivities")
+  tasks              Task[]       @relation("AccountTasks")
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
 }
@@ -138,6 +148,7 @@ model Contact {
   account          Account?  @relation(fields: [accountId], references: [id])
   opportunities    Opportunity[]
   activities       Activity[] @relation("ContactActivities")
+  tasks            Task[]     @relation("ContactTasks")
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 }
@@ -159,6 +170,7 @@ model Opportunity {
   contactId         String?
   contact           Contact?         @relation(fields: [contactId], references: [id])
   activities        Activity[]       @relation("OpportunityActivities")
+  tasks             Task[]           @relation("OpportunityTasks")
   stageHistory      OpportunityStageHistory[]
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
@@ -203,6 +215,33 @@ model Activity {
   @@index([accountId, occurredAt])
   @@index([contactId, occurredAt])
   @@index([opportunityId, occurredAt])
+}
+
+model Task {
+  id            String     @id @default(uuid())
+  title         String
+  description   String?
+  status        TaskStatus @default(TODO)
+  dueDate       DateTime?
+  completedAt   DateTime?
+  ownerId       String
+  owner         User       @relation("TaskOwner", fields: [ownerId], references: [id])
+  leadId        String?
+  lead          Lead?        @relation("LeadTasks", fields: [leadId], references: [id], onDelete: SetNull)
+  accountId     String?
+  account       Account?     @relation("AccountTasks", fields: [accountId], references: [id], onDelete: SetNull)
+  contactId     String?
+  contact       Contact?     @relation("ContactTasks", fields: [contactId], references: [id], onDelete: SetNull)
+  opportunityId String?
+  opportunity   Opportunity? @relation("OpportunityTasks", fields: [opportunityId], references: [id], onDelete: SetNull)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([ownerId, status, dueDate])
+  @@index([leadId, dueDate])
+  @@index([accountId, dueDate])
+  @@index([contactId, dueDate])
+  @@index([opportunityId, dueDate])
 }
 
 model AuditLog {
