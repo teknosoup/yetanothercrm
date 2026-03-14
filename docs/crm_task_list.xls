@@ -416,14 +416,14 @@
         <Cell><Data ss:Type="String">Done</Data></Cell>
         <Cell><Data ss:Type="String">GET /search?q=... (+ optional entities=lead,account,...; RBAC via search.read + per-entity read permissions)</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">SEC-001</Data></Cell>
         <Cell><Data ss:Type="String">Security</Data></Cell>
         <Cell><Data ss:Type="String">Rate limiting untuk endpoint sensitif</Data></Cell>
         <Cell><Data ss:Type="String">12.2</Data></Cell>
         <Cell><Data ss:Type="String">Should Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">nestjs-throttler atau gateway</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">ThrottlerModule + ThrottlerGuard on /auth: login/forgot/reset/refresh/logout</Data></Cell>
       </Row>
       <Row ss:StyleID="Todo">
         <Cell><Data ss:Type="String">SEC-002</Data></Cell>
