@@ -30,6 +30,9 @@ export class ContactsService {
         orderBy: { createdAt: 'desc' },
         skip,
         take,
+        include: {
+          account: { select: { id: true, companyName: true } },
+        },
       }),
       this.prisma.contact.count({ where }),
     ]);

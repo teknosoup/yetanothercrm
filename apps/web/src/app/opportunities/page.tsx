@@ -23,6 +23,7 @@ type Opportunity = {
   opportunityName: string;
   stage: string;
   accountId: string;
+  account?: { id: string; companyName: string } | null;
   contactId: string | null;
   estimatedValue: number | null;
   probability: number | null;
@@ -237,7 +238,12 @@ export default function OpportunitiesPage() {
                     </TableCell>
                     <TableCell>
                       <Link href={`/accounts/${o.accountId}`} className="hover:underline">
-                        {o.accountId}
+                        <span
+                          className="block max-w-[220px] truncate"
+                          title={o.account?.companyName ?? o.accountId}
+                        >
+                          {o.account?.companyName ?? o.accountId}
+                        </span>
                       </Link>
                     </TableCell>
                     <TableCell>{o.estimatedValue ?? ''}</TableCell>

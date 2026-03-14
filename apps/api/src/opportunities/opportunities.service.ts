@@ -50,6 +50,9 @@ export class OpportunitiesService {
         orderBy: { createdAt: 'desc' },
         skip,
         take,
+        include: {
+          account: { select: { id: true, companyName: true } },
+        },
       }),
       this.prisma.opportunity.count({ where }),
     ]);

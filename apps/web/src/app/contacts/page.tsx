@@ -24,6 +24,7 @@ type Contact = {
   email: string | null;
   phone: string | null;
   accountId: string | null;
+  account?: { id: string; companyName: string } | null;
   status: string;
   createdAt: string;
 };
@@ -220,7 +221,12 @@ export default function ContactsPage() {
                     <TableCell>
                       {c.accountId ? (
                         <Link href={`/accounts/${c.accountId}`} className="hover:underline">
-                          {c.accountId}
+                          <span
+                            className="block max-w-[220px] truncate"
+                            title={c.account?.companyName ?? c.accountId}
+                          >
+                            {c.account?.companyName ?? c.accountId}
+                          </span>
                         </Link>
                       ) : (
                         ''
