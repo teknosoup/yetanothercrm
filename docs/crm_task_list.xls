@@ -246,14 +246,14 @@
         <Cell><Data ss:Type="String">Done</Data></Cell>
         <Cell><Data ss:Type="String">Stage change sets wonDate/closedDate + lostReason required for CLOSED_LOST</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">OPP-004</Data></Cell>
         <Cell><Data ss:Type="String">Opportunity</Data></Cell>
         <Cell><Data ss:Type="String">Weighted pipeline calculation</Data></Cell>
         <Cell><Data ss:Type="String">10.4</Data></Cell>
         <Cell><Data ss:Type="String">Should Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">probability * value</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">weightedValue=estimatedValue*(probability/100); added to /opportunities + dashboard pipelineByStage</Data></Cell>
       </Row>
 
       <Row ss:StyleID="Done">

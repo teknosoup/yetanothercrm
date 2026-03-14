@@ -18,6 +18,14 @@ export class OpportunitiesService {
     private readonly auditService: AuditService,
   ) {}
 
+  private weightedValue(
+    estimatedValue: number | null,
+    probability: number | null,
+  ) {
+    if (!estimatedValue || !probability) return 0;
+    return estimatedValue * (probability / 100);
+  }
+
   async list(query: ListOpportunitiesQuery) {
     const take = query.take ?? 20;
     const skip = query.skip ?? 0;
@@ -46,7 +54,15 @@ export class OpportunitiesService {
       this.prisma.opportunity.count({ where }),
     ]);
 
-    return { items, total, skip, take };
+    return {
+      items: items.map((o) => ({
+        ...o,
+        weightedValue: this.weightedValue(o.estimatedValue, o.probability),
+      })),
+      total,
+      skip,
+      take,
+    };
   }
 
   async create(dto: CreateOpportunityDto, actorUserId: string) {
@@ -103,7 +119,13 @@ export class OpportunitiesService {
       where: { id },
     });
     if (!opportunity) throw new NotFoundException('Opportunity not found');
-    return opportunity;
+    return {
+      ...opportunity,
+      weightedValue: this.weightedValue(
+        opportunity.estimatedValue,
+        opportunity.probability,
+      ),
+    };
   }
 
   async update(id: string, dto: UpdateOpportunityDto, actorUserId: string) {

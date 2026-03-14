@@ -47,18 +47,37 @@ export class DashboardService {
     const oppTotal = await this.prisma.opportunity.count({
       where: opportunityWhere,
     });
-    const pipelineByStage = await this.prisma.opportunity.groupBy({
-      by: ['stage'],
-      where: {
-        ...opportunityWhere,
-        stage: {
-          notIn: [OpportunityStage.CLOSED_LOST, OpportunityStage.CLOSED_WON],
-        },
+    const pipelineOpenWhere = {
+      ...opportunityWhere,
+      stage: {
+        notIn: [OpportunityStage.CLOSED_LOST, OpportunityStage.CLOSED_WON],
       },
-      _count: { _all: true },
-      _sum: { estimatedValue: true },
-      orderBy: { stage: 'asc' },
-    });
+    };
+
+    const [pipelineByStage, pipelineOpps] = await Promise.all([
+      this.prisma.opportunity.groupBy({
+        by: ['stage'],
+        where: pipelineOpenWhere,
+        _count: { _all: true },
+        _sum: { estimatedValue: true },
+        orderBy: { stage: 'asc' },
+      }),
+      this.prisma.opportunity.findMany({
+        where: pipelineOpenWhere,
+        select: { stage: true, estimatedValue: true, probability: true },
+      }),
+    ] as const);
+
+    const weightedByStage = new Map<OpportunityStage, number>();
+    for (const o of pipelineOpps) {
+      const estimatedValue = o.estimatedValue ?? 0;
+      const probability = o.probability ?? 0;
+      const weighted = estimatedValue * (probability / 100);
+      weightedByStage.set(
+        o.stage,
+        (weightedByStage.get(o.stage) ?? 0) + weighted,
+      );
+    }
 
     const dueDate = {
       lt: now,
@@ -126,6 +145,7 @@ export class DashboardService {
           stage: r.stage,
           count: r._count?._all ?? 0,
           estimatedValueSum: r._sum?.estimatedValue ?? 0,
+          weightedEstimatedValueSum: weightedByStage.get(r.stage) ?? 0,
         })),
       },
       tasks: {
