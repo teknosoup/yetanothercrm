@@ -42,25 +42,42 @@ export class PluginsService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    const activePlugins = await this.prisma.plugin.findMany({
-      where: { isActive: true },
-      select: { key: true },
-    });
+    try {
+      const activePlugins = await this.prisma.plugin.findMany({
+        where: { isActive: true },
+        select: { key: true },
+      });
 
-    for (const row of activePlugins) {
-      if (!this.registry.has(row.key)) {
+      for (const row of activePlugins) {
+        if (!this.registry.has(row.key)) {
+          this.logger.warn(
+            {
+              type: 'plugin',
+              action: 'bootstrap.skip',
+              key: row.key,
+              reason: 'not_registered',
+            },
+            'Plugins',
+          );
+          continue;
+        }
+        await this.activateRuntime(row.key);
+      }
+    } catch (error) {
+      const maybe = error as { code?: string; meta?: unknown };
+      if (maybe?.code === 'P2021') {
         this.logger.warn(
           {
             type: 'plugin',
             action: 'bootstrap.skip',
-            key: row.key,
-            reason: 'not_registered',
+            reason: 'table_missing',
+            meta: maybe.meta,
           },
           'Plugins',
         );
-        continue;
+        return;
       }
-      await this.activateRuntime(row.key);
+      throw error;
     }
   }
 
