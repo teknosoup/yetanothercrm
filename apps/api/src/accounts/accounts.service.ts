@@ -1,5 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import * as XLSX from 'xlsx';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAccountDto } from './dto/create-account.dto';
@@ -87,6 +92,234 @@ export class AccountsService {
       'notes',
     ];
     return this.toCsv(headers, []);
+  }
+
+  private parseCsv(text: string): string[][] {
+    const rows: string[][] = [];
+    let row: string[] = [];
+    let field = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (inQuotes) {
+        if (ch === '"') {
+          const next = text[i + 1];
+          if (next === '"') {
+            field += '"';
+            i++;
+          } else {
+            inQuotes = false;
+          }
+        } else {
+          field += ch;
+        }
+        continue;
+      }
+
+      if (ch === '"') {
+        inQuotes = true;
+        continue;
+      }
+
+      if (ch === ',') {
+        row.push(field);
+        field = '';
+        continue;
+      }
+
+      if (ch === '\n') {
+        row.push(field);
+        field = '';
+        rows.push(row);
+        row = [];
+        continue;
+      }
+
+      if (ch === '\r') continue;
+      field += ch;
+    }
+
+    row.push(field);
+    const hasAnyValue = row.some((v) => v.trim() !== '');
+    if (hasAnyValue) rows.push(row);
+
+    while (
+      rows.length > 0 &&
+      rows[rows.length - 1].every((v) => v.trim() === '')
+    ) {
+      rows.pop();
+    }
+
+    return rows;
+  }
+
+  private cellToString(value: unknown) {
+    if (value == null) return '';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number' || typeof value === 'boolean')
+      return String(value);
+    if (value instanceof Date) return value.toISOString();
+    return JSON.stringify(value);
+  }
+
+  private parseImportFile(file: {
+    buffer: Buffer;
+    originalname: string;
+    mimetype: string;
+  }): Array<{ rowNumber: number; data: Record<string, string> }> {
+    const nameLower = file.originalname.toLowerCase();
+    const isCsv = nameLower.endsWith('.csv') || file.mimetype.includes('csv');
+    const isXlsx =
+      nameLower.endsWith('.xlsx') ||
+      nameLower.endsWith('.xls') ||
+      file.mimetype.includes('spreadsheet') ||
+      file.mimetype.includes('excel');
+
+    if (!isCsv && !isXlsx) {
+      throw new BadRequestException('Unsupported file type');
+    }
+
+    if (isCsv) {
+      const text = file.buffer.toString('utf8');
+      const table = this.parseCsv(text);
+      if (table.length === 0) return [];
+      const headers = table[0].map((h) => h.trim());
+      return table.slice(1).map((cells, idx) => {
+        const data: Record<string, string> = {};
+        for (let i = 0; i < headers.length; i++) {
+          const key = headers[i];
+          if (!key) continue;
+          data[key] = (cells[i] ?? '').trim();
+        }
+        return { rowNumber: idx + 2, data };
+      });
+    }
+
+    const workbook = XLSX.read(file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    if (!sheetName) return [];
+    const sheet = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
+      defval: '',
+      raw: false,
+    });
+    return rows.map((r, idx) => {
+      const data: Record<string, string> = {};
+      for (const [key, value] of Object.entries(r)) {
+        const header = key.trim();
+        if (!header) continue;
+        const str = this.cellToString(value).trim();
+        data[header] = str;
+      }
+      return { rowNumber: idx + 2, data };
+    });
+  }
+
+  private getString(row: Record<string, string>, key: string) {
+    const raw = row[key];
+    if (raw == null) return undefined;
+    const value = String(raw).trim();
+    if (value === '') return undefined;
+    return value;
+  }
+
+  private getInt(row: Record<string, string>, key: string) {
+    const str = this.getString(row, key);
+    if (str == null) return undefined;
+    const n = Number.parseInt(str, 10);
+    if (!Number.isFinite(n)) throw new BadRequestException(`Invalid ${key}`);
+    return n;
+  }
+
+  async importFile(
+    file: { buffer: Buffer; originalname: string; mimetype: string },
+    actorUserId: string,
+    dryRun: boolean,
+  ) {
+    const rows = this.parseImportFile(file);
+    const maxRows = 5000;
+    if (rows.length > maxRows) {
+      throw new BadRequestException(`Too many rows (max ${maxRows})`);
+    }
+
+    const errors: Array<{
+      rowNumber: number;
+      message: string;
+      data: Record<string, string>;
+    }> = [];
+    const createdIds: string[] = [];
+
+    for (const row of rows) {
+      const companyName = this.getString(row.data, 'companyName');
+      if (!companyName) {
+        errors.push({
+          rowNumber: row.rowNumber,
+          message: 'companyName is required',
+          data: row.data,
+        });
+        continue;
+      }
+
+      let annualValueEstimate: number | undefined;
+      try {
+        annualValueEstimate = this.getInt(row.data, 'annualValueEstimate');
+      } catch (e) {
+        errors.push({
+          rowNumber: row.rowNumber,
+          message:
+            e instanceof Error ? e.message : 'Invalid annualValueEstimate',
+          data: row.data,
+        });
+        continue;
+      }
+
+      if (dryRun) continue;
+
+      try {
+        const created = await this.prisma.account.create({
+          data: {
+            companyName,
+            type: this.getString(row.data, 'type'),
+            segment: this.getString(row.data, 'segment'),
+            industry: this.getString(row.data, 'industry'),
+            address: this.getString(row.data, 'address'),
+            taxId: this.getString(row.data, 'taxId'),
+            status: this.getString(row.data, 'status') ?? 'ACTIVE',
+            annualValueEstimate,
+            notes: this.getString(row.data, 'notes'),
+            ownerId: actorUserId,
+          },
+        });
+
+        await this.auditService.log({
+          actorUserId,
+          action: 'account.import',
+          entityType: 'account',
+          entityId: created.id,
+          after: created,
+        });
+
+        createdIds.push(created.id);
+      } catch (e) {
+        errors.push({
+          rowNumber: row.rowNumber,
+          message: e instanceof Error ? e.message : 'Failed to import row',
+          data: row.data,
+        });
+      }
+    }
+
+    const totalRows = rows.length;
+    const successCount = dryRun ? totalRows - errors.length : createdIds.length;
+    return {
+      dryRun,
+      totalRows,
+      successCount,
+      failureCount: errors.length,
+      createdIds,
+      errors,
+    };
   }
 
   async exportCsv(query: ListAccountsQuery) {

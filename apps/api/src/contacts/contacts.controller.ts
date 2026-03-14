@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -8,8 +9,13 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import type { Express } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { CurrentUser } from '../common/auth/current-user.decorator';
 import { JwtAuthGuard } from '../common/auth/jwt-auth.guard';
 import { RequirePermissions } from '../common/auth/permissions.decorator';
@@ -53,6 +59,31 @@ export class ContactsController {
   @Get('import-template.csv')
   importTemplate() {
     return this.contactsService.importTemplateCsv();
+  }
+
+  @RequirePermissions('contact.create')
+  @Post('import')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: 10_000_000 },
+    }),
+  )
+  async importFile(
+    @UploadedFile() file: Express.Multer.File | undefined,
+    @CurrentUser() user: RequestUser,
+    @Query('dryRun') dryRun?: string,
+  ) {
+    if (!file?.buffer) throw new BadRequestException('File is required');
+    return this.contactsService.importFile(
+      {
+        buffer: file.buffer,
+        originalname: file.originalname,
+        mimetype: file.mimetype,
+      },
+      user.userId,
+      dryRun === 'true',
+    );
   }
 
   @RequirePermissions('contact.create')

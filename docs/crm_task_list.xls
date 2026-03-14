@@ -378,14 +378,14 @@
         <Cell><Data ss:Type="String">Timeline endpoints per entity + GET /audit/logs?entityType=&amp;entityId= (RequirePermissions: audit.read)</Data></Cell>
       </Row>
 
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">IMEX-001</Data></Cell>
         <Cell><Data ss:Type="String">Import/Export</Data></Cell>
         <Cell><Data ss:Type="String">Import CSV/XLSX untuk lead/contact/account</Data></Cell>
         <Cell><Data ss:Type="String">8.12, 18.1</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Validasi + partial failure report</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">POST /leads|accounts|contacts/import (multipart file: CSV/XLSX) + dryRun=true + partial failure report</Data></Cell>
       </Row>
       <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">IMEX-002</Data></Cell>
@@ -425,14 +425,14 @@
         <Cell><Data ss:Type="String">Done</Data></Cell>
         <Cell><Data ss:Type="String">ThrottlerModule + ThrottlerGuard on /auth: login/forgot/reset/refresh/logout</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">SEC-002</Data></Cell>
         <Cell><Data ss:Type="String">Security</Data></Cell>
         <Cell><Data ss:Type="String">Field masking (opsional) + audit log protection</Data></Cell>
         <Cell><Data ss:Type="String">12.2</Data></Cell>
         <Cell><Data ss:Type="String">Could Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Depends on compliance needs</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">AuditService sanitizes before/after (passwordHash/tokenHash =&gt; [REDACTED]) on write + read</Data></Cell>
       </Row>
 
       <Row ss:StyleID="Todo">

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ListAuditLogsQuery } from './dto/list-audit-logs.query';
 
@@ -17,6 +18,43 @@ export type AuditPayload = {
 export class AuditService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private sanitize(
+    value: unknown,
+  ): Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue {
+    if (value == null) return Prisma.JsonNull;
+    if (value instanceof Date) return value.toISOString();
+    if (typeof value === 'bigint') return value.toString();
+    if (
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      typeof value === 'boolean'
+    ) {
+      return value;
+    }
+    if (Array.isArray(value)) {
+      return value.map((v) => this.sanitize(v)) as Prisma.InputJsonArray;
+    }
+    if (typeof value !== 'object') {
+      if (typeof value === 'symbol') return value.toString();
+      if (typeof value === 'function') return '[Function]';
+      return '';
+    }
+
+    const record = value as Record<string, unknown>;
+    const out: Record<
+      string,
+      Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue
+    > = {};
+    for (const [key, val] of Object.entries(record)) {
+      if (key === 'passwordHash' || key === 'tokenHash') {
+        out[key] = '[REDACTED]';
+        continue;
+      }
+      out[key] = this.sanitize(val);
+    }
+    return out as Prisma.InputJsonValue;
+  }
+
   async log(payload: AuditPayload) {
     await this.prisma.auditLog.create({
       data: {
@@ -24,8 +62,9 @@ export class AuditService {
         action: payload.action,
         entityType: payload.entityType,
         entityId: payload.entityId,
-        before: payload.before ?? undefined,
-        after: payload.after ?? undefined,
+        before:
+          payload.before != null ? this.sanitize(payload.before) : undefined,
+        after: payload.after != null ? this.sanitize(payload.after) : undefined,
         ip: payload.ip ?? null,
         userAgent: payload.userAgent ?? null,
       },
@@ -68,6 +107,12 @@ export class AuditService {
       }),
     ]);
 
-    return { total, data, skip, take };
+    const sanitized = data.map((d) => ({
+      ...d,
+      before: d.before != null ? this.sanitize(d.before) : null,
+      after: d.after != null ? this.sanitize(d.after) : null,
+    }));
+
+    return { total, data: sanitized, skip, take };
   }
 }
