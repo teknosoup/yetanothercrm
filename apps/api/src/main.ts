@@ -12,6 +12,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
+import type { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { AppModule } from './app.module';
 import { PrismaService } from './prisma/prisma.service';
 
@@ -128,10 +129,34 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors({
-    origin: true,
+  const configService = app.get(ConfigService);
+  const corsOriginsEnv = configService.get<string>('CORS_ORIGINS');
+  const allowedOrigins = (corsOriginsEnv ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const corsOptions: CorsOptions = {
+    origin: (
+      origin: string | undefined,
+      callback: (error: Error | null, allow?: boolean) => void,
+    ) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.length > 0) {
+        return callback(null, allowedOrigins.includes(origin));
+      }
+      const ok =
+        /^http:\/\/localhost:\d+$/.test(origin) ||
+        /^http:\/\/127\.0\.0\.1:\d+$/.test(origin) ||
+        /^http:\/\/192\.168\.\d+\.\d+:\d+$/.test(origin);
+      return callback(null, ok);
+    },
     credentials: true,
-  });
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  };
+
+  app.enableCors(corsOptions);
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('YetAnotherCRM API')
@@ -144,7 +169,6 @@ async function bootstrap() {
   const prismaService = app.get(PrismaService);
   prismaService.enableShutdownHooks(app);
 
-  const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') ?? 4000;
   await app.listen(port);
 }
