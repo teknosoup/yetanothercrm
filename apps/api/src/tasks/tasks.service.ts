@@ -59,6 +59,69 @@ export class TasksService {
     return { items, total, skip, take };
   }
 
+  async overdue(query: {
+    ownerId?: string;
+    asOf?: Date;
+    skip?: number;
+    take?: number;
+  }) {
+    const take = query.take ?? 20;
+    const skip = query.skip ?? 0;
+    const asOf = query.asOf ?? new Date();
+
+    const where: Prisma.TaskWhereInput = {
+      ...(query.ownerId ? { ownerId: query.ownerId } : {}),
+      dueDate: { lt: asOf },
+      status: { notIn: [TaskStatus.DONE, TaskStatus.CANCELED] },
+    };
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.task.findMany({
+        where,
+        orderBy: [{ dueDate: 'asc' }, { createdAt: 'desc' }],
+        skip,
+        take,
+      }),
+      this.prisma.task.count({ where }),
+    ]);
+
+    return { items, total, skip, take, asOf };
+  }
+
+  async overdueSummary(query: { asOf?: Date }) {
+    const asOf = query.asOf ?? new Date();
+
+    const rows = await this.prisma.task.groupBy({
+      by: ['ownerId'],
+      where: {
+        dueDate: { lt: asOf },
+        status: { notIn: [TaskStatus.DONE, TaskStatus.CANCELED] },
+      },
+      _count: { _all: true },
+      orderBy: { ownerId: 'asc' },
+    });
+
+    const ownerIds = rows.map((r) => r.ownerId);
+    const owners = await this.prisma.user.findMany({
+      where: { id: { in: ownerIds } },
+      select: { id: true, fullName: true, email: true },
+    });
+
+    const ownerById = new Map(owners.map((o) => [o.id, o]));
+
+    const items = rows.map((r) => {
+      const owner = ownerById.get(r.ownerId);
+      return {
+        ownerId: r.ownerId,
+        ownerFullName: owner?.fullName ?? null,
+        ownerEmail: owner?.email ?? null,
+        overdueCount: r._count._all,
+      };
+    });
+
+    return { asOf, items };
+  }
+
   private async ensureRelationsExist(dto: {
     leadId?: string;
     accountId?: string;

@@ -274,14 +274,14 @@
         <Cell><Data ss:Type="String">Done</Data></Cell>
         <Cell><Data ss:Type="String">Task model + CRUD /tasks (RBAC + audit), status + dueDate + completedAt</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">TASK-002</Data></Cell>
         <Cell><Data ss:Type="String">Task</Data></Cell>
         <Cell><Data ss:Type="String">Overdue tracking + dashboard task per user</Data></Cell>
         <Cell><Data ss:Type="String">8.7, 16.3</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Query overdue + UI list</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">GET /tasks/overdue + GET /tasks/overdue/summary (per owner) (RBAC)</Data></Cell>
       </Row>
       <Row ss:StyleID="Todo">
         <Cell><Data ss:Type="String">TASK-003</Data></Cell>

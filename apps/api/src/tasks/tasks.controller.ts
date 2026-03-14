@@ -16,6 +16,8 @@ import { PermissionsGuard } from '../common/auth/permissions.guard';
 import type { RequestUser } from '../common/auth/request-user';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { ListTasksQuery } from './dto/list-tasks.query';
+import { OverdueSummaryQuery } from './dto/overdue-summary.query';
+import { OverdueTasksQuery } from './dto/overdue-tasks.query';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TasksService } from './tasks.service';
 
@@ -28,6 +30,18 @@ export class TasksController {
   @Get()
   async list(@Query() query: ListTasksQuery) {
     return this.tasksService.list(query);
+  }
+
+  @RequirePermissions('task.read')
+  @Get('overdue')
+  async overdue(@Query() query: OverdueTasksQuery) {
+    return this.tasksService.overdue(query);
+  }
+
+  @RequirePermissions('dashboard.read', 'task.read')
+  @Get('overdue/summary')
+  async overdueSummary(@Query() query: OverdueSummaryQuery) {
+    return this.tasksService.overdueSummary(query);
   }
 
   @RequirePermissions('task.create')
