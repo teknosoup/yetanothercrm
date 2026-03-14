@@ -107,6 +107,12 @@ export class LeadsController {
   }
 
   @RequirePermissions('lead.read')
+  @Get(':id/convert-result')
+  async convertResult(@Param('id') id: string) {
+    return this.leadsService.getConvertResult(id);
+  }
+
+  @RequirePermissions('lead.read')
   @Get(':id/timeline')
   async timeline(@Param('id') id: string, @Query() query: ListTimelineQuery) {
     return this.timelineService.lead(id, query);

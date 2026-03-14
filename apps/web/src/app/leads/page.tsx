@@ -25,6 +25,10 @@ type Lead = {
   email: string | null;
   phone: string | null;
   status: string;
+  convertedAccountId?: string | null;
+  convertedContactId?: string | null;
+  convertedOpportunityId?: string | null;
+  convertedAt?: string | null;
   createdAt: string;
 };
 
@@ -35,6 +39,26 @@ type ConvertResult = {
   opportunityId: string;
 };
 
+const CONVERT_RESULT_STORAGE_KEY = 'yacrm:lead-convert-result:v1';
+
+function readConvertResultCache() {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = window.localStorage.getItem(CONVERT_RESULT_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== 'object') return {};
+    return parsed as Record<string, ConvertResult | undefined>;
+  } catch {
+    return {};
+  }
+}
+
+function writeConvertResultCache(value: Record<string, ConvertResult | undefined>) {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(CONVERT_RESULT_STORAGE_KEY, JSON.stringify(value));
+}
+
 export default function LeadsPage() {
   const router = useRouter();
   const apiBaseUrl = useMemo(() => getApiBaseUrl(), []);
@@ -42,6 +66,9 @@ export default function LeadsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [converting, setConverting] = useState<Record<string, boolean>>({});
+  const [loadingResultByLeadId, setLoadingResultByLeadId] = useState<Record<string, boolean>>(
+    {},
+  );
   const [convertResultByLeadId, setConvertResultByLeadId] = useState<
     Record<string, ConvertResult | undefined>
   >({});
@@ -91,6 +118,36 @@ export default function LeadsPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    setConvertResultByLeadId(readConvertResultCache());
+  }, []);
+
+  useEffect(() => {
+    setConvertResultByLeadId((prev) => {
+      let changed = false;
+      const next: Record<string, ConvertResult | undefined> = { ...prev };
+      for (const lead of items) {
+        if (lead.status !== 'CONVERTED') continue;
+        if (next[lead.id]) continue;
+        if (
+          lead.convertedAccountId &&
+          lead.convertedContactId &&
+          lead.convertedOpportunityId
+        ) {
+          next[lead.id] = {
+            leadId: lead.id,
+            accountId: lead.convertedAccountId,
+            contactId: lead.convertedContactId,
+            opportunityId: lead.convertedOpportunityId,
+          };
+          changed = true;
+        }
+      }
+      if (changed) writeConvertResultCache(next);
+      return changed ? next : prev;
+    });
+  }, [items]);
 
   async function onCreate(e: FormEvent) {
     e.preventDefault();
@@ -159,12 +216,54 @@ export default function LeadsPage() {
       }
 
       const data = (await res.json()) as ConvertResult;
-      setConvertResultByLeadId((prev) => ({ ...prev, [leadId]: data }));
+      setConvertResultByLeadId((prev) => {
+        const next = { ...prev, [leadId]: data };
+        writeConvertResultCache(next);
+        return next;
+      });
       await load();
     } catch {
       setActionErrorByLeadId((prev) => ({ ...prev, [leadId]: 'Terjadi error saat convert lead' }));
     } finally {
       setConverting((prev) => ({ ...prev, [leadId]: false }));
+    }
+  }
+
+  async function onLoadConvertResult(leadId: string) {
+    const token = getToken();
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
+    setActionErrorByLeadId((prev) => ({ ...prev, [leadId]: null }));
+    setLoadingResultByLeadId((prev) => ({ ...prev, [leadId]: true }));
+    try {
+      const res = await fetch(`${apiBaseUrl}/leads/${leadId}/convert-result`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.status === 401) {
+        clearToken();
+        router.push('/login');
+        return;
+      }
+
+      if (!res.ok) {
+        setActionErrorByLeadId((prev) => ({ ...prev, [leadId]: 'Hasil convert tidak ditemukan' }));
+        return;
+      }
+
+      const data = (await res.json()) as ConvertResult;
+      setConvertResultByLeadId((prev) => {
+        const next = { ...prev, [leadId]: data };
+        writeConvertResultCache(next);
+        return next;
+      });
+    } catch {
+      setActionErrorByLeadId((prev) => ({ ...prev, [leadId]: 'Terjadi error saat load hasil convert' }));
+    } finally {
+      setLoadingResultByLeadId((prev) => ({ ...prev, [leadId]: false }));
     }
   }
 
@@ -250,39 +349,55 @@ export default function LeadsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nama</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created</TableHead>
+                  <TableHead className="w-[220px] whitespace-nowrap">Nama</TableHead>
+                  <TableHead className="w-[200px] whitespace-nowrap">Company</TableHead>
+                  <TableHead className="w-[120px] whitespace-nowrap">Status</TableHead>
+                  <TableHead className="w-[200px] whitespace-nowrap">Created</TableHead>
                   <TableHead className="w-[320px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {items.map((lead) => (
                   <TableRow key={lead.id}>
-                    <TableCell className="font-medium">{lead.fullName}</TableCell>
-                    <TableCell>{lead.companyName ?? ''}</TableCell>
-                    <TableCell>
+                    <TableCell
+                      className="max-w-[220px] truncate whitespace-nowrap align-top font-medium"
+                      title={lead.fullName}
+                    >
+                      {lead.fullName}
+                    </TableCell>
+                    <TableCell
+                      className="max-w-[200px] truncate whitespace-nowrap align-top"
+                      title={lead.companyName ?? ''}
+                    >
+                      {lead.companyName ?? ''}
+                    </TableCell>
+                    <TableCell className="align-top">
                       <Badge
                         variant={lead.status === 'CONVERTED' ? 'default' : 'secondary'}
                       >
                         {lead.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="whitespace-nowrap align-top text-muted-foreground">
                       {new Date(lead.createdAt).toLocaleString()}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="align-top">
                       <div className="grid gap-2">
                         <div className="flex flex-wrap items-center gap-2">
-                          <Button
-                            type="button"
-                            size="sm"
-                            disabled={converting[lead.id] || lead.status === 'CONVERTED'}
-                            onClick={() => void onConvert(lead.id)}
-                          >
-                            {converting[lead.id] ? 'Converting…' : 'Convert'}
-                          </Button>
+                          {lead.status === 'CONVERTED' ? (
+                            <Button type="button" size="sm" variant="secondary" disabled>
+                              Converted
+                            </Button>
+                          ) : (
+                            <Button
+                              type="button"
+                              size="sm"
+                              disabled={converting[lead.id]}
+                              onClick={() => void onConvert(lead.id)}
+                            >
+                              {converting[lead.id] ? 'Converting…' : 'Convert'}
+                            </Button>
+                          )}
                         </div>
 
                         {actionErrorByLeadId[lead.id] ? (
@@ -292,26 +407,42 @@ export default function LeadsPage() {
                         ) : null}
 
                         {convertResultByLeadId[lead.id] ? (
-                          <div className="grid gap-1 text-sm text-muted-foreground">
-                            <Link
-                              href={`/accounts/${convertResultByLeadId[lead.id]!.accountId}`}
-                              className="hover:text-foreground"
-                            >
-                              Account: {convertResultByLeadId[lead.id]!.accountId}
-                            </Link>
-                            <Link
-                              href={`/contacts/${convertResultByLeadId[lead.id]!.contactId}`}
-                              className="hover:text-foreground"
-                            >
-                              Contact: {convertResultByLeadId[lead.id]!.contactId}
-                            </Link>
-                            <Link
-                              href={`/opportunities/${convertResultByLeadId[lead.id]!.opportunityId}`}
-                              className="hover:text-foreground"
-                            >
-                              Opportunity: {convertResultByLeadId[lead.id]!.opportunityId}
-                            </Link>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Button variant="outline" size="sm" asChild>
+                              <Link
+                                href={`/accounts/${convertResultByLeadId[lead.id]!.accountId}`}
+                                title={convertResultByLeadId[lead.id]!.accountId}
+                              >
+                                Account
+                              </Link>
+                            </Button>
+                            <Button variant="outline" size="sm" asChild>
+                              <Link
+                                href={`/contacts/${convertResultByLeadId[lead.id]!.contactId}`}
+                                title={convertResultByLeadId[lead.id]!.contactId}
+                              >
+                                Contact
+                              </Link>
+                            </Button>
+                            <Button variant="outline" size="sm" asChild>
+                              <Link
+                                href={`/opportunities/${convertResultByLeadId[lead.id]!.opportunityId}`}
+                                title={convertResultByLeadId[lead.id]!.opportunityId}
+                              >
+                                Opportunity
+                              </Link>
+                            </Button>
                           </div>
+                        ) : lead.status === 'CONVERTED' ? (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            disabled={loadingResultByLeadId[lead.id]}
+                            onClick={() => void onLoadConvertResult(lead.id)}
+                          >
+                            {loadingResultByLeadId[lead.id] ? 'Loading…' : 'Lihat hasil'}
+                          </Button>
                         ) : null}
                       </div>
                     </TableCell>

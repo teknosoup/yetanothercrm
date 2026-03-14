@@ -2,16 +2,14 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { clearToken, getApiBaseUrl, getToken } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function OpportunityDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function OpportunityDetailPage() {
+  const params = useParams() as { id?: string | string[] };
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const router = useRouter();
   const apiBaseUrl = useMemo(() => getApiBaseUrl(), []);
   const [item, setItem] = useState<unknown>(null);
@@ -19,6 +17,7 @@ export default function OpportunityDetailPage({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!id) return;
     const token = getToken();
     if (!token) {
       router.push('/login');
@@ -29,7 +28,7 @@ export default function OpportunityDetailPage({
     setError(null);
     void (async () => {
       try {
-        const res = await fetch(`${apiBaseUrl}/opportunities/${params.id}`, {
+        const res = await fetch(`${apiBaseUrl}/opportunities/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -51,14 +50,14 @@ export default function OpportunityDetailPage({
         setLoading(false);
       }
     })();
-  }, [apiBaseUrl, params.id, router]);
+  }, [apiBaseUrl, id, router]);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-xl font-semibold tracking-tight">Opportunity</h1>
-          <p className="text-sm text-muted-foreground">{params.id}</p>
+          <p className="text-sm text-muted-foreground">{id}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" asChild>

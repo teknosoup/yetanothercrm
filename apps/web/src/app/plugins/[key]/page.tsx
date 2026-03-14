@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { clearToken, getApiBaseUrl, getToken } from '@/lib/api';
 import { getWebPlugin } from '../registry';
 import { Badge } from '@/components/ui/badge';
@@ -20,16 +20,19 @@ type PluginRow = {
   updatedAt: string;
 };
 
-export default function PluginDetailPage({ params }: { params: { key: string } }) {
+export default function PluginDetailPage() {
+  const params = useParams() as { key?: string | string[] };
+  const keyValue = Array.isArray(params.key) ? params.key[0] : params.key;
   const router = useRouter();
   const apiBaseUrl = useMemo(() => getApiBaseUrl(), []);
   const [item, setItem] = useState<PluginRow | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const ui = useMemo(() => getWebPlugin(params.key), [params.key]);
+  const ui = useMemo(() => (keyValue ? getWebPlugin(keyValue) : null), [keyValue]);
 
   useEffect(() => {
+    if (!keyValue) return;
     const token = getToken();
     if (!token) {
       router.push('/login');
@@ -56,7 +59,7 @@ export default function PluginDetailPage({ params }: { params: { key: string } }
         }
 
         const data = (await res.json()) as { items: PluginRow[] };
-        const found = (data.items ?? []).find((p) => p.key === params.key) ?? null;
+        const found = (data.items ?? []).find((p) => p.key === keyValue) ?? null;
         setItem(found);
         if (!found) setError('Plugin tidak ditemukan');
       } catch {
@@ -65,14 +68,14 @@ export default function PluginDetailPage({ params }: { params: { key: string } }
         setLoading(false);
       }
     })();
-  }, [apiBaseUrl, params.key, router]);
+  }, [apiBaseUrl, keyValue, router]);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-xl font-semibold tracking-tight">Plugin</h1>
-          <p className="text-sm text-muted-foreground">{params.key}</p>
+          <p className="text-sm text-muted-foreground">{keyValue}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" asChild>

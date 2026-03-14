@@ -574,7 +574,13 @@ export class LeadsService {
 
       const updatedLead = await tx.lead.update({
         where: { id: lead.id },
-        data: { status: LeadStatus.CONVERTED },
+        data: {
+          status: LeadStatus.CONVERTED,
+          convertedAccountId: account.id,
+          convertedContactId: contact.id,
+          convertedOpportunityId: opportunity.id,
+          convertedAt: new Date(),
+        },
       });
 
       return { account, contact, opportunity, updatedLead };
@@ -606,6 +612,72 @@ export class LeadsService {
       accountId: result.account.id,
       contactId: result.contact.id,
       opportunityId: result.opportunity.id,
+    };
+  }
+
+  async getConvertResult(id: string) {
+    const lead = await this.prisma.lead.findUnique({ where: { id } });
+    if (!lead) throw new NotFoundException('Lead not found');
+    if (lead.status !== LeadStatus.CONVERTED) {
+      throw new BadRequestException('Lead is not converted');
+    }
+
+    if (
+      lead.convertedAccountId &&
+      lead.convertedContactId &&
+      lead.convertedOpportunityId
+    ) {
+      return {
+        leadId: lead.id,
+        accountId: lead.convertedAccountId,
+        contactId: lead.convertedContactId,
+        opportunityId: lead.convertedOpportunityId,
+      };
+    }
+
+    const companyName =
+      lead.companyName?.trim() ||
+      (lead.fullName.trim() ? `${lead.fullName.trim()} Company` : null);
+    if (!companyName) {
+      throw new BadRequestException('Company name is required');
+    }
+
+    const updatedAt =
+      lead.updatedAt instanceof Date
+        ? lead.updatedAt
+        : new Date(lead.updatedAt);
+    const windowStart = new Date(updatedAt.getTime() - 2 * 60 * 60 * 1000);
+    const windowEnd = new Date(updatedAt.getTime() + 2 * 60 * 60 * 1000);
+
+    const opportunity = await this.prisma.opportunity.findFirst({
+      where: {
+        ownerId: lead.ownerId,
+        opportunityName: `${companyName} - Opportunity`,
+        createdAt: { gte: windowStart, lte: windowEnd },
+      },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, accountId: true, contactId: true, createdAt: true },
+    });
+
+    if (!opportunity?.contactId) {
+      throw new NotFoundException('Convert result not found');
+    }
+
+    await this.prisma.lead.update({
+      where: { id: lead.id },
+      data: {
+        convertedAccountId: opportunity.accountId,
+        convertedContactId: opportunity.contactId,
+        convertedOpportunityId: opportunity.id,
+        convertedAt: lead.convertedAt ?? opportunity.createdAt,
+      },
+    });
+
+    return {
+      leadId: lead.id,
+      accountId: opportunity.accountId,
+      contactId: opportunity.contactId,
+      opportunityId: opportunity.id,
     };
   }
 
