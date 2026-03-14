@@ -38,6 +38,7 @@ async function main() {
     'note.delete',
     'dashboard.read',
     'audit.read',
+    'search.read',
     'user.read',
     'user.manage',
     'role.manage',
@@ -119,11 +120,17 @@ async function main() {
     'opportunity.create',
     'opportunity.read',
     'opportunity.update',
+    'search.read',
   ]
     .map((k) => permissionByKey.get(k)?.id)
     .filter((id): id is string => Boolean(id));
 
-  const marketingPermissionIds = ['lead.create', 'lead.read', 'dashboard.read']
+  const marketingPermissionIds = [
+    'lead.create',
+    'lead.read',
+    'dashboard.read',
+    'search.read',
+  ]
     .map((k) => permissionByKey.get(k)?.id)
     .filter((id): id is string => Boolean(id));
 
@@ -138,6 +145,7 @@ async function main() {
     'activity.create',
     'activity.read',
     'activity.update',
+    'search.read',
   ]
     .map((k) => permissionByKey.get(k)?.id)
     .filter((id): id is string => Boolean(id));
@@ -154,6 +162,7 @@ async function main() {
     'note.read',
     'dashboard.read',
     'audit.read',
+    'search.read',
     'user.read',
   ]
     .map((k) => permissionByKey.get(k)?.id)
@@ -166,6 +175,7 @@ async function main() {
     'opportunity.read',
     'dashboard.read',
     'audit.read',
+    'search.read',
     'user.read',
   ]
     .map((k) => permissionByKey.get(k)?.id)

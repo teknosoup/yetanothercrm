@@ -12,6 +12,7 @@ import { LeadsModule } from './leads/leads.module';
 import { NotesModule } from './notes/notes.module';
 import { OpportunitiesModule } from './opportunities/opportunities.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { SearchModule } from './search/search.module';
 import { TasksModule } from './tasks/tasks.module';
 import { UsersModule } from './users/users.module';
 
@@ -30,6 +31,7 @@ import { UsersModule } from './users/users.module';
     ActivitiesModule,
     TasksModule,
     NotesModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService],

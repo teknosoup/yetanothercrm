@@ -21,7 +21,23 @@ export class ContactsService {
     const take = query.take ?? 20;
     const skip = query.skip ?? 0;
 
-    const where: Prisma.ContactWhereInput = {
+    const where = this.buildWhere(query);
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.contact.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+      }),
+      this.prisma.contact.count({ where }),
+    ]);
+
+    return { items, total, skip, take };
+  }
+
+  private buildWhere(query: ListContactsQuery): Prisma.ContactWhereInput {
+    return {
       ...(query.ownerId ? { ownerId: query.ownerId } : {}),
       ...(query.accountId ? { accountId: query.accountId } : {}),
       ...(query.q
@@ -35,18 +51,84 @@ export class ContactsService {
           }
         : {}),
     };
+  }
 
-    const [items, total] = await this.prisma.$transaction([
-      this.prisma.contact.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take,
-      }),
-      this.prisma.contact.count({ where }),
-    ]);
+  private escapeCsvValue(value: unknown) {
+    if (value == null) return '';
+    const raw =
+      value instanceof Date
+        ? value.toISOString()
+        : typeof value === 'string'
+          ? value
+          : typeof value === 'number' ||
+              typeof value === 'boolean' ||
+              typeof value === 'bigint'
+            ? String(value)
+            : JSON.stringify(value);
+    const escaped = raw.replace(/"/g, '""');
+    if (/[",\n\r]/.test(escaped)) return `"${escaped}"`;
+    return escaped;
+  }
 
-    return { items, total, skip, take };
+  private toCsv(headers: string[], rows: Array<Record<string, unknown>>) {
+    const headerLine = headers.join(',');
+    const lines = rows.map((row) =>
+      headers.map((h) => this.escapeCsvValue(row[h])).join(','),
+    );
+    return [headerLine, ...lines].join('\r\n');
+  }
+
+  importTemplateCsv() {
+    const headers = [
+      'fullName',
+      'jobTitle',
+      'email',
+      'phone',
+      'preferredChannel',
+      'status',
+      'accountId',
+    ];
+    return this.toCsv(headers, []);
+  }
+
+  async exportCsv(query: ListContactsQuery) {
+    const where = this.buildWhere(query);
+    const take = Math.min(query.take ?? 5000, 5000);
+    const skip = query.skip ?? 0;
+
+    const rows = await this.prisma.contact.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take,
+      select: {
+        id: true,
+        fullName: true,
+        jobTitle: true,
+        email: true,
+        phone: true,
+        preferredChannel: true,
+        status: true,
+        ownerId: true,
+        accountId: true,
+        createdAt: true,
+      },
+    });
+
+    const headers = [
+      'id',
+      'fullName',
+      'jobTitle',
+      'email',
+      'phone',
+      'preferredChannel',
+      'status',
+      'ownerId',
+      'accountId',
+      'createdAt',
+    ];
+
+    return this.toCsv(headers, rows);
   }
 
   async create(dto: CreateContactDto, actorUserId: string) {

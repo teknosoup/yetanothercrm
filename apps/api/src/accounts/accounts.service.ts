@@ -17,7 +17,23 @@ export class AccountsService {
     const take = query.take ?? 20;
     const skip = query.skip ?? 0;
 
-    const where: Prisma.AccountWhereInput = {
+    const where = this.buildWhere(query);
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.account.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+      }),
+      this.prisma.account.count({ where }),
+    ]);
+
+    return { items, total, skip, take };
+  }
+
+  private buildWhere(query: ListAccountsQuery): Prisma.AccountWhereInput {
+    return {
       ...(query.ownerId ? { ownerId: query.ownerId } : {}),
       ...(query.q
         ? {
@@ -31,18 +47,90 @@ export class AccountsService {
           }
         : {}),
     };
+  }
 
-    const [items, total] = await this.prisma.$transaction([
-      this.prisma.account.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take,
-      }),
-      this.prisma.account.count({ where }),
-    ]);
+  private escapeCsvValue(value: unknown) {
+    if (value == null) return '';
+    const raw =
+      value instanceof Date
+        ? value.toISOString()
+        : typeof value === 'string'
+          ? value
+          : typeof value === 'number' ||
+              typeof value === 'boolean' ||
+              typeof value === 'bigint'
+            ? String(value)
+            : JSON.stringify(value);
+    const escaped = raw.replace(/"/g, '""');
+    if (/[",\n\r]/.test(escaped)) return `"${escaped}"`;
+    return escaped;
+  }
 
-    return { items, total, skip, take };
+  private toCsv(headers: string[], rows: Array<Record<string, unknown>>) {
+    const headerLine = headers.join(',');
+    const lines = rows.map((row) =>
+      headers.map((h) => this.escapeCsvValue(row[h])).join(','),
+    );
+    return [headerLine, ...lines].join('\r\n');
+  }
+
+  importTemplateCsv() {
+    const headers = [
+      'companyName',
+      'type',
+      'segment',
+      'industry',
+      'address',
+      'taxId',
+      'status',
+      'annualValueEstimate',
+      'notes',
+    ];
+    return this.toCsv(headers, []);
+  }
+
+  async exportCsv(query: ListAccountsQuery) {
+    const where = this.buildWhere(query);
+    const take = Math.min(query.take ?? 5000, 5000);
+    const skip = query.skip ?? 0;
+
+    const rows = await this.prisma.account.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take,
+      select: {
+        id: true,
+        companyName: true,
+        type: true,
+        segment: true,
+        industry: true,
+        address: true,
+        taxId: true,
+        status: true,
+        annualValueEstimate: true,
+        notes: true,
+        ownerId: true,
+        createdAt: true,
+      },
+    });
+
+    const headers = [
+      'id',
+      'companyName',
+      'type',
+      'segment',
+      'industry',
+      'address',
+      'taxId',
+      'status',
+      'annualValueEstimate',
+      'notes',
+      'ownerId',
+      'createdAt',
+    ];
+
+    return this.toCsv(headers, rows);
   }
 
   async create(dto: CreateAccountDto, actorUserId: string) {

@@ -387,14 +387,14 @@
         <Cell><Data ss:Type="String">Todo</Data></Cell>
         <Cell><Data ss:Type="String">Validasi + partial failure report</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">IMEX-002</Data></Cell>
         <Cell><Data ss:Type="String">Import/Export</Data></Cell>
         <Cell><Data ss:Type="String">Export data berdasarkan filter + template import standar</Data></Cell>
         <Cell><Data ss:Type="String">8.12, 10.7</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">CSV export endpoint</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">GET /leads/export.csv, /accounts/export.csv, /contacts/export.csv (+ import-template.csv)</Data></Cell>
       </Row>
 
       <Row ss:StyleID="Todo">
@@ -407,14 +407,14 @@
         <Cell><Data ss:Type="String">Butuh notification model + delivery channel</Data></Cell>
       </Row>
 
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">SEARCH-001</Data></Cell>
         <Cell><Data ss:Type="String">Search/Filter</Data></Cell>
         <Cell><Data ss:Type="String">Global search lintas entity</Data></Cell>
         <Cell><Data ss:Type="String">10.1</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Indexing + unified endpoint</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">GET /search?q=... (+ optional entities=lead,account,...; RBAC via search.read + per-entity read permissions)</Data></Cell>
       </Row>
       <Row ss:StyleID="Todo">
         <Cell><Data ss:Type="String">SEC-001</Data></Cell>

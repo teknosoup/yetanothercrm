@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Param,
   Patch,
   Post,
@@ -33,6 +34,25 @@ export class ContactsController {
   @Get()
   async list(@Query() query: ListContactsQuery) {
     return this.contactsService.list(query);
+  }
+
+  @RequirePermissions('contact.read')
+  @Header('Content-Type', 'text/csv')
+  @Header('Content-Disposition', 'attachment; filename="contacts.csv"')
+  @Get('export.csv')
+  async exportCsv(@Query() query: ListContactsQuery) {
+    return this.contactsService.exportCsv(query);
+  }
+
+  @RequirePermissions('contact.create')
+  @Header('Content-Type', 'text/csv')
+  @Header(
+    'Content-Disposition',
+    'attachment; filename="contacts_import_template.csv"',
+  )
+  @Get('import-template.csv')
+  importTemplate() {
+    return this.contactsService.importTemplateCsv();
   }
 
   @RequirePermissions('contact.create')

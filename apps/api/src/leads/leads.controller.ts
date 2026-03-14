@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Param,
   Patch,
   Post,
@@ -35,6 +36,25 @@ export class LeadsController {
   @Get()
   async list(@Query() query: ListLeadsQuery) {
     return this.leadsService.list(query);
+  }
+
+  @RequirePermissions('lead.read')
+  @Header('Content-Type', 'text/csv')
+  @Header('Content-Disposition', 'attachment; filename="leads.csv"')
+  @Get('export.csv')
+  async exportCsv(@Query() query: ListLeadsQuery) {
+    return this.leadsService.exportCsv(query);
+  }
+
+  @RequirePermissions('lead.create')
+  @Header('Content-Type', 'text/csv')
+  @Header(
+    'Content-Disposition',
+    'attachment; filename="leads_import_template.csv"',
+  )
+  @Get('import-template.csv')
+  importTemplate() {
+    return this.leadsService.importTemplateCsv();
   }
 
   @RequirePermissions('lead.read')

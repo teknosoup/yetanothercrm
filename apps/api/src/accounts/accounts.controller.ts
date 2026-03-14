@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Param,
   Patch,
   Post,
@@ -33,6 +34,25 @@ export class AccountsController {
   @Get()
   async list(@Query() query: ListAccountsQuery) {
     return this.accountsService.list(query);
+  }
+
+  @RequirePermissions('account.read')
+  @Header('Content-Type', 'text/csv')
+  @Header('Content-Disposition', 'attachment; filename="accounts.csv"')
+  @Get('export.csv')
+  async exportCsv(@Query() query: ListAccountsQuery) {
+    return this.accountsService.exportCsv(query);
+  }
+
+  @RequirePermissions('account.create')
+  @Header('Content-Type', 'text/csv')
+  @Header(
+    'Content-Disposition',
+    'attachment; filename="accounts_import_template.csv"',
+  )
+  @Get('import-template.csv')
+  importTemplate() {
+    return this.accountsService.importTemplateCsv();
   }
 
   @RequirePermissions('account.create')
