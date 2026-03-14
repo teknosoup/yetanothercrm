@@ -25,6 +25,15 @@ enum OpportunityStage {
   CLOSED_LOST
 }
 
+enum ActivityType {
+  CALL
+  EMAIL
+  MEETING
+  NOTE
+  FOLLOW_UP
+  OTHER
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -37,6 +46,7 @@ model User {
   accountsOwned Account[] @relation("AccountOwner")
   contactsOwned Contact[] @relation("ContactOwner")
   opportunitiesOwned Opportunity[] @relation("OpportunityOwner")
+  activitiesOwned Activity[] @relation("ActivityOwner")
   opportunityStageHistories OpportunityStageHistory[] @relation("OpportunityStageActor")
   auditLogs    AuditLog[] @relation("AuditActor")
   passwordResetTokens PasswordResetToken[]
@@ -89,6 +99,7 @@ model Lead {
   notes       String?
   ownerId     String
   owner       User       @relation("LeadOwner", fields: [ownerId], references: [id])
+  activities  Activity[] @relation("LeadActivities")
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 }
@@ -108,6 +119,7 @@ model Account {
   owner              User         @relation("AccountOwner", fields: [ownerId], references: [id])
   contacts           Contact[]
   opportunities      Opportunity[]
+  activities         Activity[]   @relation("AccountActivities")
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
 }
@@ -125,6 +137,7 @@ model Contact {
   accountId        String?
   account          Account?  @relation(fields: [accountId], references: [id])
   opportunities    Opportunity[]
+  activities       Activity[] @relation("ContactActivities")
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 }
@@ -145,6 +158,7 @@ model Opportunity {
   account           Account          @relation(fields: [accountId], references: [id])
   contactId         String?
   contact           Contact?         @relation(fields: [contactId], references: [id])
+  activities        Activity[]       @relation("OpportunityActivities")
   stageHistory      OpportunityStageHistory[]
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
@@ -163,6 +177,32 @@ model OpportunityStageHistory {
 
   @@index([opportunityId, createdAt])
   @@index([actorUserId, createdAt])
+}
+
+model Activity {
+  id            String       @id @default(uuid())
+  type          ActivityType
+  subject       String
+  description   String?
+  occurredAt    DateTime
+  ownerId       String
+  owner         User         @relation("ActivityOwner", fields: [ownerId], references: [id])
+  leadId        String?
+  lead          Lead?        @relation("LeadActivities", fields: [leadId], references: [id], onDelete: SetNull)
+  accountId     String?
+  account       Account?     @relation("AccountActivities", fields: [accountId], references: [id], onDelete: SetNull)
+  contactId     String?
+  contact       Contact?     @relation("ContactActivities", fields: [contactId], references: [id], onDelete: SetNull)
+  opportunityId String?
+  opportunity   Opportunity? @relation("OpportunityActivities", fields: [opportunityId], references: [id], onDelete: SetNull)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([ownerId, occurredAt])
+  @@index([leadId, occurredAt])
+  @@index([accountId, occurredAt])
+  @@index([contactId, occurredAt])
+  @@index([opportunityId, occurredAt])
 }
 
 model AuditLog {

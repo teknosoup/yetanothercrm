@@ -190,14 +190,14 @@
         <Cell><Data ss:Type="String">Done</Data></Cell>
         <Cell><Data ss:Type="String">CRUD /contacts + relasi accountId (RBAC + audit)</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">CONTACT-002</Data></Cell>
         <Cell><Data ss:Type="String">Contact</Data></Cell>
         <Cell><Data ss:Type="String">Histori interaksi per contact</Data></Cell>
         <Cell><Data ss:Type="String">8.3, 10.3</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Butuh notes + activities + audit timeline</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">GET /contacts/:id/history (activities + audit logs)</Data></Cell>
       </Row>
 
       <Row ss:StyleID="Done">
@@ -256,14 +256,14 @@
         <Cell><Data ss:Type="String">probability * value</Data></Cell>
       </Row>
 
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">ACT-001</Data></Cell>
         <Cell><Data ss:Type="String">Activity</Data></Cell>
         <Cell><Data ss:Type="String">Activity types (call/email/meeting/etc) CRUD</Data></Cell>
         <Cell><Data ss:Type="String">8.6, 10.5</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Belum ada model/API</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Activity model + CRUD /activities (RBAC + audit)</Data></Cell>
       </Row>
       <Row ss:StyleID="Todo">
         <Cell><Data ss:Type="String">TASK-001</Data></Cell>

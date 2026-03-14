@@ -88,6 +88,26 @@ export class ContactsService {
     return contact;
   }
 
+  async history(id: string) {
+    const contact = await this.prisma.contact.findUnique({ where: { id } });
+    if (!contact) throw new NotFoundException('Contact not found');
+
+    const [activities, auditLogs] = await this.prisma.$transaction([
+      this.prisma.activity.findMany({
+        where: { contactId: id },
+        orderBy: { occurredAt: 'desc' },
+        take: 100,
+      }),
+      this.prisma.auditLog.findMany({
+        where: { entityType: 'contact', entityId: id },
+        orderBy: { createdAt: 'desc' },
+        take: 100,
+      }),
+    ]);
+
+    return { contact, activities, auditLogs };
+  }
+
   async update(id: string, dto: UpdateContactDto, actorUserId: string) {
     const existing = await this.prisma.contact.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException('Contact not found');

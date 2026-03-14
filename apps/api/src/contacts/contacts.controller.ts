@@ -45,6 +45,12 @@ export class ContactsController {
     return this.contactsService.findOne(id);
   }
 
+  @RequirePermissions('contact.read')
+  @Get(':id/history')
+  async history(@Param('id') id: string) {
+    return this.contactsService.history(id);
+  }
+
   @RequirePermissions('contact.update')
   @Patch(':id')
   async update(
