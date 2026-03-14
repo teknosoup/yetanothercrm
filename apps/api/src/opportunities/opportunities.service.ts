@@ -123,6 +123,7 @@ export class OpportunitiesService {
       include: {
         account: { select: { id: true, companyName: true } },
         contact: { select: { id: true, fullName: true } },
+        owner: { select: { id: true, fullName: true, email: true } },
       },
     });
     if (!opportunity) throw new NotFoundException('Opportunity not found');
