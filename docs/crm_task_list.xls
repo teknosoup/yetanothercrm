@@ -481,14 +481,14 @@
         <Cell><Data ss:Type="String">Done</Data></Cell>
         <Cell><Data ss:Type="String">Nest URI versioning (/v1) + Swagger UI at /docs</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">NFR-002</Data></Cell>
         <Cell><Data ss:Type="String">Non-Functional</Data></Cell>
         <Cell><Data ss:Type="String">Observability (structured logging, monitoring, error tracking)</Data></Cell>
         <Cell><Data ss:Type="String">12.5</Data></Cell>
         <Cell><Data ss:Type="String">Should Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Pino/OpenTelemetry/Sentry (opsional)</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">JSON structured logger + global HTTP request logging; health endpoint already exists</Data></Cell>
       </Row>
 
       <Row ss:StyleID="Done">
@@ -518,14 +518,14 @@
         <Cell><Data ss:Type="String">Done</Data></Cell>
         <Cell><Data ss:Type="String">Convert button on Leads page + links to new detail pages (accounts/contacts/opportunities)</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">WEB-004</Data></Cell>
         <Cell><Data ss:Type="String">Frontend</Data></Cell>
         <Cell><Data ss:Type="String">Pages: contacts, accounts, opportunities, tasks/activities, dashboard</Data></Cell>
         <Cell><Data ss:Type="String">19.1 (recommended modules)</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Butuh API terlebih dulu</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Added list/create pages for accounts/contacts/opportunities/tasks/activities + dashboard metrics page</Data></Cell>
       </Row>
 
     </Table>
