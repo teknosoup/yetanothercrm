@@ -10,6 +10,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
+import helmet from 'helmet';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import type { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
@@ -115,6 +116,15 @@ async function bootstrap() {
   const logger = new JsonLogger();
   const app = await NestFactory.create(AppModule, { logger });
   app.useGlobalInterceptors(new RequestLoggingInterceptor(logger));
+  (
+    app.getHttpAdapter().getInstance() as { disable: (name: string) => void }
+  ).disable('x-powered-by');
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
 
   app.enableVersioning({
     type: VersioningType.URI,
@@ -158,13 +168,19 @@ async function bootstrap() {
 
   app.enableCors(corsOptions);
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('YetAnotherCRM API')
-    .setVersion('1')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('docs', app, document);
+  const swaggerEnabled =
+    configService.get<string>('SWAGGER_ENABLED') === 'true' ||
+    (configService.get<string>('NODE_ENV') ?? process.env.NODE_ENV) !==
+      'production';
+  if (swaggerEnabled) {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('YetAnotherCRM API')
+      .setVersion('1')
+      .addBearerAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('docs', app, document);
+  }
 
   const prismaService = app.get(PrismaService);
   prismaService.enableShutdownHooks(app);

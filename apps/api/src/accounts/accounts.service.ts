@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import * as XLSX from 'xlsx';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAccountDto } from './dto/create-account.dto';
@@ -154,15 +153,6 @@ export class AccountsService {
     return rows;
   }
 
-  private cellToString(value: unknown) {
-    if (value == null) return '';
-    if (typeof value === 'string') return value;
-    if (typeof value === 'number' || typeof value === 'boolean')
-      return String(value);
-    if (value instanceof Date) return value.toISOString();
-    return JSON.stringify(value);
-  }
-
   private parseImportFile(file: {
     buffer: Buffer;
     originalname: string;
@@ -170,47 +160,21 @@ export class AccountsService {
   }): Array<{ rowNumber: number; data: Record<string, string> }> {
     const nameLower = file.originalname.toLowerCase();
     const isCsv = nameLower.endsWith('.csv') || file.mimetype.includes('csv');
-    const isXlsx =
-      nameLower.endsWith('.xlsx') ||
-      nameLower.endsWith('.xls') ||
-      file.mimetype.includes('spreadsheet') ||
-      file.mimetype.includes('excel');
 
-    if (!isCsv && !isXlsx) {
-      throw new BadRequestException('Unsupported file type');
+    if (!isCsv) {
+      throw new BadRequestException('Unsupported file type (CSV only)');
     }
 
-    if (isCsv) {
-      const text = file.buffer.toString('utf8');
-      const table = this.parseCsv(text);
-      if (table.length === 0) return [];
-      const headers = table[0].map((h) => h.trim());
-      return table.slice(1).map((cells, idx) => {
-        const data: Record<string, string> = {};
-        for (let i = 0; i < headers.length; i++) {
-          const key = headers[i];
-          if (!key) continue;
-          data[key] = (cells[i] ?? '').trim();
-        }
-        return { rowNumber: idx + 2, data };
-      });
-    }
-
-    const workbook = XLSX.read(file.buffer, { type: 'buffer' });
-    const sheetName = workbook.SheetNames[0];
-    if (!sheetName) return [];
-    const sheet = workbook.Sheets[sheetName];
-    const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
-      defval: '',
-      raw: false,
-    });
-    return rows.map((r, idx) => {
+    const text = file.buffer.toString('utf8');
+    const table = this.parseCsv(text);
+    if (table.length === 0) return [];
+    const headers = table[0].map((h) => h.trim());
+    return table.slice(1).map((cells, idx) => {
       const data: Record<string, string> = {};
-      for (const [key, value] of Object.entries(r)) {
-        const header = key.trim();
-        if (!header) continue;
-        const str = this.cellToString(value).trim();
-        data[header] = str;
+      for (let i = 0; i < headers.length; i++) {
+        const key = headers[i];
+        if (!key) continue;
+        data[key] = (cells[i] ?? '').trim();
       }
       return { rowNumber: idx + 2, data };
     });
