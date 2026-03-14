@@ -293,14 +293,14 @@
         <Cell><Data ss:Type="String">Butuh scheduler/queue + notification</Data></Cell>
       </Row>
 
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">NOTE-001</Data></Cell>
         <Cell><Data ss:Type="String">Notes & Timeline</Data></Cell>
         <Cell><Data ss:Type="String">Notes internal per entity + comment thread</Data></Cell>
         <Cell><Data ss:Type="String">8.8, 10.1</Data></Cell>
         <Cell><Data ss:Type="String">Should Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Butuh Note model/API</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Note + comment thread: GET/POST /notes, GET /notes/:id/thread, nested comment CRUD</Data></Cell>
       </Row>
       <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">NOTE-002</Data></Cell>
@@ -321,14 +321,14 @@
         <Cell><Data ss:Type="String">Done</Data></Cell>
         <Cell><Data ss:Type="String">GET /dashboard/metrics (leads totals+conversion, pipeline by stage, overdue tasks per owner)</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="InProgress">
         <Cell><Data ss:Type="String">DASH-002</Data></Cell>
         <Cell><Data ss:Type="String">Reporting</Data></Cell>
         <Cell><Data ss:Type="String">Filter dashboard (date range, team, owner, source, region, product/category)</Data></Cell>
         <Cell><Data ss:Type="String">8.9</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Butuh modelling team/product kalau diperlukan</Data></Cell>
+        <Cell><Data ss:Type="String">In Progress</Data></Cell>
+        <Cell><Data ss:Type="String">GET /dashboard/metrics supports from/to/ownerId/source/region (team/product pending model)</Data></Cell>
       </Row>
 
       <Row ss:StyleID="Done">
@@ -368,14 +368,14 @@
         <Cell><Data ss:Type="String">Done</Data></Cell>
         <Cell><Data ss:Type="String">AuditLog model + service</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">AUDIT-002</Data></Cell>
         <Cell><Data ss:Type="String">Audit Trail</Data></Cell>
         <Cell><Data ss:Type="String">Expose audit/timeline API per entity + admin viewer</Data></Cell>
         <Cell><Data ss:Type="String">8.11, 8.8</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">UI + endpoint query by entityType/entityId</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Timeline endpoints per entity + GET /audit/logs?entityType=&amp;entityId= (RequirePermissions: audit.read)</Data></Cell>
       </Row>
 
       <Row ss:StyleID="Todo">

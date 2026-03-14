@@ -1,25 +1,56 @@
 import { Injectable } from '@nestjs/common';
 import { LeadStatus, OpportunityStage, TaskStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { DashboardMetricsQuery } from './dto/dashboard-metrics.query';
 
 @Injectable()
 export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async metrics() {
+  async metrics(query: DashboardMetricsQuery) {
     const now = new Date();
 
-    const leadTotal = await this.prisma.lead.count();
+    const leadWhere = {
+      ...(query.ownerId ? { ownerId: query.ownerId } : {}),
+      ...(query.source ? { source: query.source } : {}),
+      ...(query.region ? { region: query.region } : {}),
+      ...(query.from || query.to
+        ? {
+            createdAt: {
+              ...(query.from ? { gte: query.from } : {}),
+              ...(query.to ? { lte: query.to } : {}),
+            },
+          }
+        : {}),
+    };
+
+    const leadTotal = await this.prisma.lead.count({ where: leadWhere });
     const leadByStatus = await this.prisma.lead.groupBy({
       by: ['status'],
+      where: leadWhere,
       _count: { _all: true },
       orderBy: { status: 'asc' },
     });
 
-    const oppTotal = await this.prisma.opportunity.count();
+    const opportunityWhere = {
+      ...(query.ownerId ? { ownerId: query.ownerId } : {}),
+      ...(query.from || query.to
+        ? {
+            createdAt: {
+              ...(query.from ? { gte: query.from } : {}),
+              ...(query.to ? { lte: query.to } : {}),
+            },
+          }
+        : {}),
+    };
+
+    const oppTotal = await this.prisma.opportunity.count({
+      where: opportunityWhere,
+    });
     const pipelineByStage = await this.prisma.opportunity.groupBy({
       by: ['stage'],
       where: {
+        ...opportunityWhere,
         stage: {
           notIn: [OpportunityStage.CLOSED_LOST, OpportunityStage.CLOSED_WON],
         },
@@ -29,10 +60,17 @@ export class DashboardService {
       orderBy: { stage: 'asc' },
     });
 
+    const dueDate = {
+      lt: now,
+      ...(query.from ? { gte: query.from } : {}),
+      ...(query.to ? { lte: query.to } : {}),
+    };
+
     const overdueRows = await this.prisma.task.groupBy({
       by: ['ownerId'],
       where: {
-        dueDate: { lt: now },
+        ...(query.ownerId ? { ownerId: query.ownerId } : {}),
+        dueDate,
         status: { notIn: [TaskStatus.DONE, TaskStatus.CANCELED] },
       },
       _count: { _all: true },

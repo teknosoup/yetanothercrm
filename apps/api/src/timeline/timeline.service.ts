@@ -14,14 +14,19 @@ type OpportunityStageHistoryWithActor =
     include: { actorUser: { select: typeof actorUserSelect } };
   }>;
 
+type NoteWithAuthor = Prisma.NoteGetPayload<{
+  include: { authorUser: { select: typeof actorUserSelect } };
+}>;
+
 type TimelineData =
   | AuditLogWithActor
   | Activity
   | Task
+  | NoteWithAuthor
   | OpportunityStageHistoryWithActor;
 
 type TimelineItem = {
-  kind: 'audit' | 'activity' | 'task' | 'opportunity_stage';
+  kind: 'audit' | 'activity' | 'task' | 'note' | 'opportunity_stage';
   occurredAt: Date;
   data: TimelineData;
 };
@@ -37,6 +42,17 @@ export class TimelineService {
       take,
       include: {
         actorUser: { select: actorUserSelect },
+      },
+    });
+  }
+
+  private notes(entityType: string, entityId: string, take: number) {
+    return this.prisma.note.findMany({
+      where: { entityType, entityId },
+      orderBy: { createdAt: 'desc' },
+      take,
+      include: {
+        authorUser: { select: actorUserSelect },
       },
     });
   }
@@ -59,25 +75,32 @@ export class TimelineService {
     });
     if (!lead) throw new NotFoundException('Lead not found');
 
-    const [auditLogs, activities, tasks] = await this.prisma.$transaction([
-      this.auditLogs('lead', id, 200),
-      this.prisma.activity.findMany({
-        where: { leadId: id },
-        orderBy: { occurredAt: 'desc' },
-        take: 200,
-      }),
-      this.prisma.task.findMany({
-        where: { leadId: id },
-        orderBy: { createdAt: 'desc' },
-        take: 200,
-      }),
-    ] as const);
+    const [auditLogs, notes, activities, tasks] =
+      await this.prisma.$transaction([
+        this.auditLogs('lead', id, 200),
+        this.notes('lead', id, 200),
+        this.prisma.activity.findMany({
+          where: { leadId: id },
+          orderBy: { occurredAt: 'desc' },
+          take: 200,
+        }),
+        this.prisma.task.findMany({
+          where: { leadId: id },
+          orderBy: { createdAt: 'desc' },
+          take: 200,
+        }),
+      ] as const);
 
     const items: TimelineItem[] = [
       ...auditLogs.map((l) => ({
         kind: 'audit' as const,
         occurredAt: l.createdAt,
         data: l,
+      })),
+      ...notes.map((n) => ({
+        kind: 'note' as const,
+        occurredAt: n.createdAt,
+        data: n,
       })),
       ...activities.map((a) => ({
         kind: 'activity' as const,
@@ -105,25 +128,32 @@ export class TimelineService {
     });
     if (!account) throw new NotFoundException('Account not found');
 
-    const [auditLogs, activities, tasks] = await this.prisma.$transaction([
-      this.auditLogs('account', id, 200),
-      this.prisma.activity.findMany({
-        where: { accountId: id },
-        orderBy: { occurredAt: 'desc' },
-        take: 200,
-      }),
-      this.prisma.task.findMany({
-        where: { accountId: id },
-        orderBy: { createdAt: 'desc' },
-        take: 200,
-      }),
-    ] as const);
+    const [auditLogs, notes, activities, tasks] =
+      await this.prisma.$transaction([
+        this.auditLogs('account', id, 200),
+        this.notes('account', id, 200),
+        this.prisma.activity.findMany({
+          where: { accountId: id },
+          orderBy: { occurredAt: 'desc' },
+          take: 200,
+        }),
+        this.prisma.task.findMany({
+          where: { accountId: id },
+          orderBy: { createdAt: 'desc' },
+          take: 200,
+        }),
+      ] as const);
 
     const items: TimelineItem[] = [
       ...auditLogs.map((l) => ({
         kind: 'audit' as const,
         occurredAt: l.createdAt,
         data: l,
+      })),
+      ...notes.map((n) => ({
+        kind: 'note' as const,
+        occurredAt: n.createdAt,
+        data: n,
       })),
       ...activities.map((a) => ({
         kind: 'activity' as const,
@@ -151,25 +181,32 @@ export class TimelineService {
     });
     if (!contact) throw new NotFoundException('Contact not found');
 
-    const [auditLogs, activities, tasks] = await this.prisma.$transaction([
-      this.auditLogs('contact', id, 200),
-      this.prisma.activity.findMany({
-        where: { contactId: id },
-        orderBy: { occurredAt: 'desc' },
-        take: 200,
-      }),
-      this.prisma.task.findMany({
-        where: { contactId: id },
-        orderBy: { createdAt: 'desc' },
-        take: 200,
-      }),
-    ] as const);
+    const [auditLogs, notes, activities, tasks] =
+      await this.prisma.$transaction([
+        this.auditLogs('contact', id, 200),
+        this.notes('contact', id, 200),
+        this.prisma.activity.findMany({
+          where: { contactId: id },
+          orderBy: { occurredAt: 'desc' },
+          take: 200,
+        }),
+        this.prisma.task.findMany({
+          where: { contactId: id },
+          orderBy: { createdAt: 'desc' },
+          take: 200,
+        }),
+      ] as const);
 
     const items: TimelineItem[] = [
       ...auditLogs.map((l) => ({
         kind: 'audit' as const,
         occurredAt: l.createdAt,
         data: l,
+      })),
+      ...notes.map((n) => ({
+        kind: 'note' as const,
+        occurredAt: n.createdAt,
+        data: n,
       })),
       ...activities.map((a) => ({
         kind: 'activity' as const,
@@ -197,9 +234,10 @@ export class TimelineService {
     });
     if (!opportunity) throw new NotFoundException('Opportunity not found');
 
-    const [auditLogs, activities, tasks, stageHistory] =
+    const [auditLogs, notes, activities, tasks, stageHistory] =
       await this.prisma.$transaction([
         this.auditLogs('opportunity', id, 200),
+        this.notes('opportunity', id, 200),
         this.prisma.activity.findMany({
           where: { opportunityId: id },
           orderBy: { occurredAt: 'desc' },
@@ -225,6 +263,11 @@ export class TimelineService {
         kind: 'audit' as const,
         occurredAt: l.createdAt,
         data: l,
+      })),
+      ...notes.map((n) => ({
+        kind: 'note' as const,
+        occurredAt: n.createdAt,
+        data: n,
       })),
       ...activities.map((a) => ({
         kind: 'activity' as const,

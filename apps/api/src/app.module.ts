@@ -9,6 +9,7 @@ import { AuditModule } from './audit/audit.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ContactsModule } from './contacts/contacts.module';
 import { LeadsModule } from './leads/leads.module';
+import { NotesModule } from './notes/notes.module';
 import { OpportunitiesModule } from './opportunities/opportunities.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { TasksModule } from './tasks/tasks.module';
@@ -28,6 +29,7 @@ import { UsersModule } from './users/users.module';
     OpportunitiesModule,
     ActivitiesModule,
     TasksModule,
+    NotesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

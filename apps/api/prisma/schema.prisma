@@ -55,6 +55,8 @@ model User {
   opportunitiesOwned Opportunity[] @relation("OpportunityOwner")
   activitiesOwned Activity[] @relation("ActivityOwner")
   tasksOwned Task[] @relation("TaskOwner")
+  notesAuthored Note[] @relation("NoteAuthor")
+  noteCommentsAuthored NoteComment[] @relation("NoteCommentAuthor")
   opportunityStageHistories OpportunityStageHistory[] @relation("OpportunityStageActor")
   auditLogs    AuditLog[] @relation("AuditActor")
   passwordResetTokens PasswordResetToken[]
@@ -242,6 +244,40 @@ model Task {
   @@index([accountId, dueDate])
   @@index([contactId, dueDate])
   @@index([opportunityId, dueDate])
+}
+
+model Note {
+  id         String   @id @default(uuid())
+  entityType String
+  entityId   String
+  body       String
+  isInternal Boolean  @default(true)
+  authorUserId String?
+  authorUser   User? @relation("NoteAuthor", fields: [authorUserId], references: [id], onDelete: SetNull)
+  comments   NoteComment[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([entityType, entityId, createdAt])
+  @@index([authorUserId, createdAt])
+}
+
+model NoteComment {
+  id          String   @id @default(uuid())
+  noteId      String
+  note        Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  parentId    String?
+  parent      NoteComment? @relation("NoteCommentParent", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     NoteComment[] @relation("NoteCommentParent")
+  body        String
+  authorUserId String?
+  authorUser   User? @relation("NoteCommentAuthor", fields: [authorUserId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([noteId, createdAt])
+  @@index([parentId, createdAt])
+  @@index([authorUserId, createdAt])
 }
 
 model AuditLog {

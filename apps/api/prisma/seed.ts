@@ -37,6 +37,7 @@ async function main() {
     'note.update',
     'note.delete',
     'dashboard.read',
+    'audit.read',
     'user.read',
     'user.manage',
     'role.manage',
@@ -152,6 +153,7 @@ async function main() {
     'activity.read',
     'note.read',
     'dashboard.read',
+    'audit.read',
     'user.read',
   ]
     .map((k) => permissionByKey.get(k)?.id)
@@ -163,6 +165,7 @@ async function main() {
     'contact.read',
     'opportunity.read',
     'dashboard.read',
+    'audit.read',
     'user.read',
   ]
     .map((k) => permissionByKey.get(k)?.id)
