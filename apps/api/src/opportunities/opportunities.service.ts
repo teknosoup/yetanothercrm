@@ -120,6 +120,10 @@ export class OpportunitiesService {
   async findOne(id: string) {
     const opportunity = await this.prisma.opportunity.findUnique({
       where: { id },
+      include: {
+        account: { select: { id: true, companyName: true } },
+        contact: { select: { id: true, fullName: true } },
+      },
     });
     if (!opportunity) throw new NotFoundException('Opportunity not found');
     return {

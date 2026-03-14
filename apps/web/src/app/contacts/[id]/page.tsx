@@ -4,15 +4,31 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { clearToken, getApiBaseUrl, getToken } from '@/lib/api';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+type ContactDetail = {
+  id: string;
+  fullName: string;
+  jobTitle: string | null;
+  email: string | null;
+  phone: string | null;
+  preferredChannel: string | null;
+  status: string;
+  ownerId: string;
+  accountId: string | null;
+  account?: { id: string; companyName: string } | null;
+  createdAt: string;
+  updatedAt: string;
+};
 
 export default function ContactDetailPage() {
   const params = useParams() as { id?: string | string[] };
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const router = useRouter();
   const apiBaseUrl = useMemo(() => getApiBaseUrl(), []);
-  const [item, setItem] = useState<unknown>(null);
+  const [item, setItem] = useState<ContactDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -43,7 +59,7 @@ export default function ContactDetailPage() {
           return;
         }
 
-        setItem((await res.json()) as unknown);
+        setItem((await res.json()) as ContactDetail);
       } catch {
         setError('Terjadi error saat load contact');
       } finally {
@@ -56,7 +72,7 @@ export default function ContactDetailPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-xl font-semibold tracking-tight">Contact</h1>
+          <h1 className="text-xl font-semibold tracking-tight">{item?.fullName ?? 'Contact'}</h1>
           <p className="text-sm text-muted-foreground">{id}</p>
         </div>
         <div className="flex gap-2">
@@ -77,9 +93,72 @@ export default function ContactDetailPage() {
           <CardTitle>Detail</CardTitle>
         </CardHeader>
         <CardContent>
-          <pre className="max-h-[520px] overflow-auto rounded-md bg-muted p-4 text-sm">
-            {item ? JSON.stringify(item, null, 2) : ''}
-          </pre>
+          {item ? (
+            <div className="grid gap-6">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant={item.status === 'ACTIVE' ? 'default' : 'secondary'}>
+                  {item.status}
+                </Badge>
+                {item.jobTitle ? (
+                  <div className="text-sm text-muted-foreground">{item.jobTitle}</div>
+                ) : null}
+              </div>
+
+              <dl className="grid gap-3">
+                <div className="grid grid-cols-[160px_1fr] gap-x-4">
+                  <dt className="text-sm text-muted-foreground">Full Name</dt>
+                  <dd className="font-medium">{item.fullName}</dd>
+                </div>
+
+                <div className="grid grid-cols-[160px_1fr] gap-x-4">
+                  <dt className="text-sm text-muted-foreground">Email</dt>
+                  <dd className="font-medium">{item.email ?? '-'}</dd>
+                </div>
+
+                <div className="grid grid-cols-[160px_1fr] gap-x-4">
+                  <dt className="text-sm text-muted-foreground">Phone</dt>
+                  <dd className="font-medium">{item.phone ?? '-'}</dd>
+                </div>
+
+                <div className="grid grid-cols-[160px_1fr] gap-x-4">
+                  <dt className="text-sm text-muted-foreground">Preferred Channel</dt>
+                  <dd className="font-medium">{item.preferredChannel ?? '-'}</dd>
+                </div>
+
+                <div className="grid grid-cols-[160px_1fr] gap-x-4">
+                  <dt className="text-sm text-muted-foreground">Account</dt>
+                  <dd className="font-medium">
+                    {item.accountId ? (
+                      <Link href={`/accounts/${item.accountId}`} className="hover:underline">
+                        {item.account?.companyName ?? item.accountId}
+                      </Link>
+                    ) : (
+                      '-'
+                    )}
+                  </dd>
+                </div>
+
+                <div className="grid grid-cols-[160px_1fr] gap-x-4">
+                  <dt className="text-sm text-muted-foreground">Owner</dt>
+                  <dd className="font-medium">{item.ownerId}</dd>
+                </div>
+
+                <div className="grid grid-cols-[160px_1fr] gap-x-4">
+                  <dt className="text-sm text-muted-foreground">Created</dt>
+                  <dd className="font-medium">
+                    {item.createdAt ? new Date(item.createdAt).toLocaleString() : '-'}
+                  </dd>
+                </div>
+
+                <div className="grid grid-cols-[160px_1fr] gap-x-4">
+                  <dt className="text-sm text-muted-foreground">Updated</dt>
+                  <dd className="font-medium">
+                    {item.updatedAt ? new Date(item.updatedAt).toLocaleString() : '-'}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
     </div>

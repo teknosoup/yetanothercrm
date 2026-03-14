@@ -95,9 +95,51 @@ export default function PluginDetailPage() {
           <CardTitle>Metadata</CardTitle>
         </CardHeader>
         <CardContent>
-          <pre className="max-h-[520px] overflow-auto rounded-md bg-muted p-4 text-sm">
-            {item ? JSON.stringify(item, null, 2) : ''}
-          </pre>
+          {item ? (
+            <div className="grid gap-6">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant={item.isActive ? 'default' : 'secondary'}>
+                  {item.isActive ? 'ACTIVE' : 'INACTIVE'}
+                </Badge>
+                {item.version ? <Badge variant="outline">v{item.version}</Badge> : null}
+              </div>
+
+              <dl className="grid gap-3">
+                <div className="grid grid-cols-[140px_1fr] gap-x-4">
+                  <dt className="text-sm text-muted-foreground">Name</dt>
+                  <dd className="font-medium">{item.name}</dd>
+                </div>
+
+                <div className="grid grid-cols-[140px_1fr] gap-x-4">
+                  <dt className="text-sm text-muted-foreground">Key</dt>
+                  <dd className="font-medium">{item.key}</dd>
+                </div>
+
+                <div className="grid grid-cols-[140px_1fr] gap-x-4">
+                  <dt className="text-sm text-muted-foreground">Created</dt>
+                  <dd className="font-medium">
+                    {item.createdAt ? new Date(item.createdAt).toLocaleString() : '-'}
+                  </dd>
+                </div>
+
+                <div className="grid grid-cols-[140px_1fr] gap-x-4">
+                  <dt className="text-sm text-muted-foreground">Updated</dt>
+                  <dd className="font-medium">
+                    {item.updatedAt ? new Date(item.updatedAt).toLocaleString() : '-'}
+                  </dd>
+                </div>
+              </dl>
+
+              <details className="rounded-md border p-3">
+                <summary className="cursor-pointer text-sm font-medium">
+                  Lihat config (advanced)
+                </summary>
+                <pre className="mt-3 max-h-[360px] overflow-auto rounded-md bg-muted p-3 text-sm">
+                  {JSON.stringify(item.config, null, 2)}
+                </pre>
+              </details>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 

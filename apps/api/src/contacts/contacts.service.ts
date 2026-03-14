@@ -402,7 +402,12 @@ export class ContactsService {
   }
 
   async findOne(id: string) {
-    const contact = await this.prisma.contact.findUnique({ where: { id } });
+    const contact = await this.prisma.contact.findUnique({
+      where: { id },
+      include: {
+        account: { select: { id: true, companyName: true } },
+      },
+    });
     if (!contact) throw new NotFoundException('Contact not found');
     return contact;
   }
