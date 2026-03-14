@@ -453,23 +453,23 @@
         <Cell><Data ss:Type="String">Done</Data></Cell>
         <Cell><Data ss:Type="String">EventBusService + lead event emissions (lead.created/updated/assigned/converted)</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">PLUG-003</Data></Cell>
         <Cell><Data ss:Type="String">Plugin Architecture</Data></Cell>
         <Cell><Data ss:Type="String">Backend plugin loader contract (register module, permission registration, lifecycle)</Data></Cell>
         <Cell><Data ss:Type="String">11.5, 11.12</Data></Cell>
         <Cell><Data ss:Type="String">Should Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Butuh desain extension points stabil</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">PluginsService supports runtime register() with permission createMany + activate/deactivate lifecycle hooks + boot activation for DB active plugins</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">PLUG-004</Data></Cell>
         <Cell><Data ss:Type="String">Plugin Architecture</Data></Cell>
         <Cell><Data ss:Type="String">Frontend extension slots (menu/widget/tab/action)</Data></Cell>
         <Cell><Data ss:Type="String">11.6, 18.2</Data></Cell>
         <Cell><Data ss:Type="String">Should Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Registry + dynamic routing</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Added /plugins pages + simple UI registry + dynamic route per plugin key with slots preview</Data></Cell>
       </Row>
 
       <Row ss:StyleID="Done">

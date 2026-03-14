@@ -13,6 +13,7 @@ export default function Home() {
         <Link href="/tasks">Tasks</Link>
         <Link href="/activities">Activities</Link>
         <Link href="/dashboard">Dashboard</Link>
+        <Link href="/plugins">Plugins</Link>
       </div>
     </main>
   );

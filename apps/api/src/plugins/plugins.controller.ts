@@ -35,12 +35,12 @@ export class PluginsController {
   @RequirePermissions('plugin.manage')
   @Post(':key/activate')
   async activate(@Param('key') key: string) {
-    return this.pluginsService.setActive(key, true);
+    return this.pluginsService.activate(key);
   }
 
   @RequirePermissions('plugin.manage')
   @Post(':key/deactivate')
   async deactivate(@Param('key') key: string) {
-    return this.pluginsService.setActive(key, false);
+    return this.pluginsService.deactivate(key);
   }
 }
