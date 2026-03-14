@@ -4,6 +4,19 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { clearToken, getApiBaseUrl, getToken } from '@/lib/api';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 type Contact = {
   id: string;
@@ -111,12 +124,18 @@ export default function ContactsPage() {
   }
 
   return (
-    <main style={{ padding: 24 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <h1>Contacts</h1>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <Link href="/">Home</Link>
-          <button
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-xl font-semibold tracking-tight">Contacts</h1>
+          <p className="text-sm text-muted-foreground">Daftar contact (person).</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/">Home</Link>
+          </Button>
+          <Button
+            variant="secondary"
             type="button"
             onClick={() => {
               clearToken();
@@ -124,72 +143,104 @@ export default function ContactsPage() {
             }}
           >
             Logout
-          </button>
+          </Button>
         </div>
       </div>
 
-      <form onSubmit={onCreate} style={{ display: 'grid', gap: 12, maxWidth: 520 }}>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Full Name</span>
-          <input value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-        </label>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Email</span>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
-        </label>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Phone</span>
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} />
-        </label>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Account ID (optional)</span>
-          <input value={accountId} onChange={(e) => setAccountId(e.target.value)} />
-        </label>
-        <button type="submit">Create Contact</button>
-      </form>
+      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <Card>
+          <CardHeader>
+            <CardTitle>Create Contact</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={onCreate} className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  type="email"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="phone">Phone</Label>
+                <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="accountId">Account ID (optional)</Label>
+                <Input
+                  id="accountId"
+                  value={accountId}
+                  onChange={(e) => setAccountId(e.target.value)}
+                />
+              </div>
+              <Button type="submit">Create</Button>
+              {error ? <div className="text-sm text-destructive">{error}</div> : null}
+            </form>
+          </CardContent>
+        </Card>
 
-      <div style={{ marginTop: 24 }}>
-        {loading ? <div>Loading…</div> : null}
-        {error ? <div style={{ color: 'crimson' }}>{error}</div> : null}
-        <table style={{ width: '100%', marginTop: 12, borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-                Name
-              </th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-                Email
-              </th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-                Phone
-              </th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-                Account
-              </th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-                Created
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((c) => (
-              <tr key={c.id}>
-                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>
-                  <Link href={`/contacts/${c.id}`}>{c.fullName}</Link>
-                </td>
-                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>{c.email ?? ''}</td>
-                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>{c.phone ?? ''}</td>
-                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>
-                  {c.accountId ? <Link href={`/accounts/${c.accountId}`}>{c.accountId}</Link> : ''}
-                </td>
-                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>
-                  {new Date(c.createdAt).toLocaleString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <Card>
+          <CardHeader>
+            <CardTitle>List</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {loading ? <div className="text-sm text-muted-foreground">Loading…</div> : null}
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Account</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {items.map((c) => (
+                  <TableRow key={c.id}>
+                    <TableCell className="font-medium">
+                      <Link href={`/contacts/${c.id}`} className="hover:underline">
+                        {c.fullName}
+                      </Link>
+                    </TableCell>
+                    <TableCell>{c.email ?? ''}</TableCell>
+                    <TableCell>{c.phone ?? ''}</TableCell>
+                    <TableCell>
+                      {c.accountId ? (
+                        <Link href={`/accounts/${c.accountId}`} className="hover:underline">
+                          {c.accountId}
+                        </Link>
+                      ) : (
+                        ''
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={c.status === 'ACTIVE' ? 'default' : 'secondary'}>
+                        {c.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(c.createdAt).toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
-    </main>
+    </div>
   );
 }

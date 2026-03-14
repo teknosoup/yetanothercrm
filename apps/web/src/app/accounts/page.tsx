@@ -4,6 +4,19 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { clearToken, getApiBaseUrl, getToken } from '@/lib/api';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 type Account = {
   id: string;
@@ -103,12 +116,18 @@ export default function AccountsPage() {
   }
 
   return (
-    <main style={{ padding: 24 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <h1>Accounts</h1>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <Link href="/">Home</Link>
-          <button
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-xl font-semibold tracking-tight">Accounts</h1>
+          <p className="text-sm text-muted-foreground">Daftar account (company).</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/">Home</Link>
+          </Button>
+          <Button
+            variant="secondary"
             type="button"
             onClick={() => {
               clearToken();
@@ -116,64 +135,75 @@ export default function AccountsPage() {
             }}
           >
             Logout
-          </button>
+          </Button>
         </div>
       </div>
 
-      <form onSubmit={onCreate} style={{ display: 'grid', gap: 12, maxWidth: 520 }}>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Company Name</span>
-          <input
-            value={companyName}
-            onChange={(e) => setCompanyName(e.target.value)}
-            required
-          />
-        </label>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Industry</span>
-          <input value={industry} onChange={(e) => setIndustry(e.target.value)} />
-        </label>
-        <button type="submit">Create Account</button>
-      </form>
+      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <Card>
+          <CardHeader>
+            <CardTitle>Create Account</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={onCreate} className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="companyName">Company Name</Label>
+                <Input
+                  id="companyName"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="industry">Industry</Label>
+                <Input id="industry" value={industry} onChange={(e) => setIndustry(e.target.value)} />
+              </div>
+              <Button type="submit">Create</Button>
+              {error ? <div className="text-sm text-destructive">{error}</div> : null}
+            </form>
+          </CardContent>
+        </Card>
 
-      <div style={{ marginTop: 24 }}>
-        {loading ? <div>Loading…</div> : null}
-        {error ? <div style={{ color: 'crimson' }}>{error}</div> : null}
-        <table style={{ width: '100%', marginTop: 12, borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-                Company
-              </th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-                Industry
-              </th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-                Status
-              </th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-                Created
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((a) => (
-              <tr key={a.id}>
-                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>
-                  <Link href={`/accounts/${a.id}`}>{a.companyName}</Link>
-                </td>
-                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>
-                  {a.industry ?? ''}
-                </td>
-                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>{a.status}</td>
-                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>
-                  {new Date(a.createdAt).toLocaleString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <Card>
+          <CardHeader>
+            <CardTitle>List</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {loading ? <div className="text-sm text-muted-foreground">Loading…</div> : null}
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Industry</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {items.map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell className="font-medium">
+                      <Link href={`/accounts/${a.id}`} className="hover:underline">
+                        {a.companyName}
+                      </Link>
+                    </TableCell>
+                    <TableCell>{a.industry ?? ''}</TableCell>
+                    <TableCell>
+                      <Badge variant={a.status === 'ACTIVE' ? 'default' : 'secondary'}>
+                        {a.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(a.createdAt).toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
-    </main>
+    </div>
   );
 }

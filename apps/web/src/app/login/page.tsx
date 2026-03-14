@@ -3,6 +3,10 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getApiBaseUrl, setToken } from '@/lib/api';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -44,33 +48,43 @@ export default function LoginPage() {
   }
 
   return (
-    <main style={{ padding: 24, maxWidth: 480 }}>
-      <h1>Login</h1>
-      <form onSubmit={onSubmit} style={{ display: 'grid', gap: 12 }}>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Email</span>
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            required
-          />
-        </label>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Password</span>
-          <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            type="password"
-            required
-          />
-        </label>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Loading…' : 'Login'}
-        </button>
-        {error ? <div style={{ color: 'crimson' }}>{error}</div> : null}
-      </form>
-    </main>
+    <div className="flex justify-center">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Login</CardTitle>
+          <CardDescription>Masuk untuk akses CRM.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={onSubmit} className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type="email"
+                required
+                autoComplete="email"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                type="password"
+                required
+                autoComplete="current-password"
+              />
+            </div>
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading ? 'Loading…' : 'Login'}
+            </Button>
+            {error ? <div className="text-sm text-destructive">{error}</div> : null}
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
-

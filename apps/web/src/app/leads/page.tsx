@@ -4,6 +4,19 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { clearToken, getApiBaseUrl, getToken } from '@/lib/api';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 type Lead = {
   id: string;
@@ -156,108 +169,159 @@ export default function LeadsPage() {
   }
 
   return (
-    <main style={{ padding: 24 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <h1>Leads</h1>
-        <button
-          type="button"
-          onClick={() => {
-            clearToken();
-            router.push('/login');
-          }}
-        >
-          Logout
-        </button>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-xl font-semibold tracking-tight">Leads</h1>
+          <p className="text-sm text-muted-foreground">
+            Buat lead, lalu convert untuk otomatis membuat account/contact/opportunity.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/">Home</Link>
+          </Button>
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={() => {
+              clearToken();
+              router.push('/login');
+            }}
+          >
+            Logout
+          </Button>
+        </div>
       </div>
 
-      <form onSubmit={onCreate} style={{ display: 'grid', gap: 12, maxWidth: 520 }}>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Nama</span>
-          <input value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-        </label>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Company</span>
-          <input value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
-        </label>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Email</span>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
-        </label>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Phone</span>
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} />
-        </label>
-        <button type="submit">Create Lead</button>
-      </form>
+      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <Card>
+          <CardHeader>
+            <CardTitle>Create Lead</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={onCreate} className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="fullName">Nama</Label>
+                <Input
+                  id="fullName"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="companyName">Company</Label>
+                <Input
+                  id="companyName"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  type="email"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="phone">Phone</Label>
+                <Input
+                  id="phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+              </div>
+              <Button type="submit">Create</Button>
+              {error ? <div className="text-sm text-destructive">{error}</div> : null}
+            </form>
+          </CardContent>
+        </Card>
 
-      <div style={{ marginTop: 24 }}>
-        {loading ? <div>Loading…</div> : null}
-        {error ? <div style={{ color: 'crimson' }}>{error}</div> : null}
-        <table style={{ width: '100%', marginTop: 12, borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-                Nama
-              </th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-                Company
-              </th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-                Status
-              </th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-                Created
-              </th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((lead) => (
-              <tr key={lead.id}>
-                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>{lead.fullName}</td>
-                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>
-                  {lead.companyName ?? ''}
-                </td>
-                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>{lead.status}</td>
-                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>
-                  {new Date(lead.createdAt).toLocaleString()}
-                </td>
-                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>
-                  <div style={{ display: 'grid', gap: 8 }}>
-                    <button
-                      type="button"
-                      disabled={converting[lead.id] || lead.status === 'CONVERTED'}
-                      onClick={() => void onConvert(lead.id)}
-                    >
-                      {converting[lead.id] ? 'Converting…' : 'Convert'}
-                    </button>
-                    {actionErrorByLeadId[lead.id] ? (
-                      <div style={{ color: 'crimson' }}>{actionErrorByLeadId[lead.id]}</div>
-                    ) : null}
-                    {convertResultByLeadId[lead.id] ? (
-                      <div style={{ display: 'grid', gap: 4 }}>
-                        <Link href={`/accounts/${convertResultByLeadId[lead.id]!.accountId}`}>
-                          Account: {convertResultByLeadId[lead.id]!.accountId}
-                        </Link>
-                        <Link href={`/contacts/${convertResultByLeadId[lead.id]!.contactId}`}>
-                          Contact: {convertResultByLeadId[lead.id]!.contactId}
-                        </Link>
-                        <Link
-                          href={`/opportunities/${convertResultByLeadId[lead.id]!.opportunityId}`}
-                        >
-                          Opportunity: {convertResultByLeadId[lead.id]!.opportunityId}
-                        </Link>
+        <Card>
+          <CardHeader>
+            <CardTitle>List</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {loading ? <div className="text-sm text-muted-foreground">Loading…</div> : null}
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nama</TableHead>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead className="w-[320px]">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {items.map((lead) => (
+                  <TableRow key={lead.id}>
+                    <TableCell className="font-medium">{lead.fullName}</TableCell>
+                    <TableCell>{lead.companyName ?? ''}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={lead.status === 'CONVERTED' ? 'default' : 'secondary'}
+                      >
+                        {lead.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(lead.createdAt).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      <div className="grid gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            disabled={converting[lead.id] || lead.status === 'CONVERTED'}
+                            onClick={() => void onConvert(lead.id)}
+                          >
+                            {converting[lead.id] ? 'Converting…' : 'Convert'}
+                          </Button>
+                        </div>
+
+                        {actionErrorByLeadId[lead.id] ? (
+                          <div className="text-sm text-destructive">
+                            {actionErrorByLeadId[lead.id]}
+                          </div>
+                        ) : null}
+
+                        {convertResultByLeadId[lead.id] ? (
+                          <div className="grid gap-1 text-sm text-muted-foreground">
+                            <Link
+                              href={`/accounts/${convertResultByLeadId[lead.id]!.accountId}`}
+                              className="hover:text-foreground"
+                            >
+                              Account: {convertResultByLeadId[lead.id]!.accountId}
+                            </Link>
+                            <Link
+                              href={`/contacts/${convertResultByLeadId[lead.id]!.contactId}`}
+                              className="hover:text-foreground"
+                            >
+                              Contact: {convertResultByLeadId[lead.id]!.contactId}
+                            </Link>
+                            <Link
+                              href={`/opportunities/${convertResultByLeadId[lead.id]!.opportunityId}`}
+                              className="hover:text-foreground"
+                            >
+                              Opportunity: {convertResultByLeadId[lead.id]!.opportunityId}
+                            </Link>
+                          </div>
+                        ) : null}
                       </div>
-                    ) : null}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
-    </main>
+    </div>
   );
 }
