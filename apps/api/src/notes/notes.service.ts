@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNoteCommentDto } from './dto/create-note-comment.dto';
 import { CreateNoteDto } from './dto/create-note.dto';
@@ -25,6 +26,7 @@ export class NotesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   private async ensureEntityExists(entityType: string, entityId: string) {
@@ -233,13 +235,21 @@ export class NotesService {
     const note = await this.prisma.note.findUnique({ where: { id: noteId } });
     if (!note) throw new NotFoundException('Note not found');
 
+    const recipients = new Set<string>();
+    if (note.authorUserId && note.authorUserId !== actorUserId) {
+      recipients.add(note.authorUserId);
+    }
+
     if (dto.parentId) {
       const parent = await this.prisma.noteComment.findUnique({
         where: { id: dto.parentId },
-        select: { id: true, noteId: true },
+        select: { id: true, noteId: true, authorUserId: true },
       });
       if (!parent || parent.noteId !== noteId)
         throw new BadRequestException('Invalid parent comment');
+      if (parent.authorUserId && parent.authorUserId !== actorUserId) {
+        recipients.add(parent.authorUserId);
+      }
     }
 
     const comment = await this.prisma.noteComment.create({
@@ -261,6 +271,21 @@ export class NotesService {
       entityId: comment.id,
       after: comment,
     });
+
+    const snippet = dto.body.trim().slice(0, 140);
+    await Promise.all(
+      Array.from(recipients).map((recipientUserId) =>
+        this.notificationsService.createNotification({
+          recipientUserId,
+          type: 'note.comment',
+          title: 'New comment on note',
+          body: snippet.length ? snippet : null,
+          entityType: 'note',
+          entityId: noteId,
+          dedupeKey: `note.comment:${comment.id}`,
+        }),
+      ),
+    );
 
     return comment;
   }

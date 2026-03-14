@@ -1,5 +1,5 @@
 export function getApiBaseUrl() {
-  return process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
+  return process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000/v1';
 }
 
 export function getToken() {
@@ -14,4 +14,3 @@ export function setToken(token: string) {
 export function clearToken() {
   window.localStorage.removeItem('token');
 }
-

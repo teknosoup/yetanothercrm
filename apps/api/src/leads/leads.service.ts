@@ -6,6 +6,8 @@ import {
 import { Lead, LeadStatus, OpportunityStage, Prisma } from '@prisma/client';
 import * as XLSX from 'xlsx';
 import { AuditService } from '../audit/audit.service';
+import { EventBusService } from '../event-bus/event-bus.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { ListLeadsQuery } from './dto/list-leads.query';
@@ -16,6 +18,8 @@ export class LeadsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
+    private readonly eventBus: EventBusService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async list(query: ListLeadsQuery) {
@@ -390,6 +394,14 @@ export class LeadsService {
       after: lead,
     });
 
+    this.eventBus.emit({
+      type: 'lead.created',
+      actorUserId,
+      entityType: 'lead',
+      entityId: lead.id,
+      payload: { ownerId: lead.ownerId },
+    });
+
     return lead;
   }
 
@@ -491,6 +503,14 @@ export class LeadsService {
       after: updated,
     });
 
+    this.eventBus.emit({
+      type: 'lead.updated',
+      actorUserId,
+      entityType: 'lead',
+      entityId: updated.id,
+      payload: { before: existing, after: updated },
+    });
+
     return updated;
   }
 
@@ -567,6 +587,18 @@ export class LeadsService {
       entityId: lead.id,
       before: lead,
       after: result.updatedLead,
+    });
+
+    this.eventBus.emit({
+      type: 'lead.converted',
+      actorUserId,
+      entityType: 'lead',
+      entityId: lead.id,
+      payload: {
+        accountId: result.account.id,
+        contactId: result.contact.id,
+        opportunityId: result.opportunity.id,
+      },
     });
 
     return {
@@ -649,6 +681,26 @@ export class LeadsService {
       before: existing,
       after: updated,
     });
+
+    this.eventBus.emit({
+      type: 'lead.assigned',
+      actorUserId,
+      entityType: 'lead',
+      entityId: updated.id,
+      payload: { fromOwnerId: existing.ownerId, toOwnerId: updated.ownerId },
+    });
+
+    if (updated.ownerId !== actorUserId) {
+      await this.notificationsService.createNotification({
+        recipientUserId: updated.ownerId,
+        type: 'lead.assigned',
+        title: `Lead assigned: ${updated.fullName}`,
+        body: updated.companyName ? `Company: ${updated.companyName}` : null,
+        entityType: 'lead',
+        entityId: updated.id,
+        dedupeKey: `lead.assigned:${updated.id}:${updated.ownerId}`,
+      });
+    }
 
     return updated;
   }

@@ -283,14 +283,14 @@
         <Cell><Data ss:Type="String">Done</Data></Cell>
         <Cell><Data ss:Type="String">GET /tasks/overdue + GET /tasks/overdue/summary (per owner) (RBAC)</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">TASK-003</Data></Cell>
         <Cell><Data ss:Type="String">Task</Data></Cell>
         <Cell><Data ss:Type="String">Reminder sebelum jatuh tempo</Data></Cell>
         <Cell><Data ss:Type="String">8.7, 10.5</Data></Cell>
         <Cell><Data ss:Type="String">Should Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Butuh scheduler/queue + notification</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Scheduled reminders via Notifications cron (task.due_soon 24h before due)</Data></Cell>
       </Row>
 
       <Row ss:StyleID="Done">
@@ -321,14 +321,14 @@
         <Cell><Data ss:Type="String">Done</Data></Cell>
         <Cell><Data ss:Type="String">GET /dashboard/metrics (leads totals+conversion, pipeline by stage, overdue tasks per owner)</Data></Cell>
       </Row>
-      <Row ss:StyleID="InProgress">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">DASH-002</Data></Cell>
         <Cell><Data ss:Type="String">Reporting</Data></Cell>
         <Cell><Data ss:Type="String">Filter dashboard (date range, team, owner, source, region, product/category)</Data></Cell>
         <Cell><Data ss:Type="String">8.9</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">In Progress</Data></Cell>
-        <Cell><Data ss:Type="String">GET /dashboard/metrics supports from/to/ownerId/source/region (team/product pending model)</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">GET /dashboard/metrics supports from/to/ownerId/source/region</Data></Cell>
       </Row>
 
       <Row ss:StyleID="Done">
@@ -397,14 +397,14 @@
         <Cell><Data ss:Type="String">GET /leads/export.csv, /accounts/export.csv, /contacts/export.csv (+ import-template.csv)</Data></Cell>
       </Row>
 
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">NOTIF-001</Data></Cell>
         <Cell><Data ss:Type="String">Notification</Data></Cell>
         <Cell><Data ss:Type="String">Notifikasi: new assignment, task due, overdue, mention/comment, status change</Data></Cell>
         <Cell><Data ss:Type="String">10.6, 18.2</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Butuh notification model + delivery channel</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Notification model + API (GET /notifications, POST /notifications/:id/read, POST /notifications/read-all) + lead.assign + note.comment + scheduled task reminders</Data></Cell>
       </Row>
 
       <Row ss:StyleID="Done">
@@ -435,23 +435,23 @@
         <Cell><Data ss:Type="String">AuditService sanitizes before/after (passwordHash/tokenHash =&gt; [REDACTED]) on write + read</Data></Cell>
       </Row>
 
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">PLUG-001</Data></Cell>
         <Cell><Data ss:Type="String">Plugin Architecture</Data></Cell>
         <Cell><Data ss:Type="String">Plugin registry module + DB tables (plugin metadata, status active/inactive)</Data></Cell>
         <Cell><Data ss:Type="String">11.9, 16.5, 18.1</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Belum ada</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Plugin model + Plugins API (GET /plugins, PATCH /plugins/:key, POST /plugins/:key/activate|deactivate) + permissions plugin.read/plugin.manage</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">PLUG-002</Data></Cell>
         <Cell><Data ss:Type="String">Plugin Architecture</Data></Cell>
         <Cell><Data ss:Type="String">Event bus internal + emit events minimum (lead.created/updated/assigned/converted, etc)</Data></Cell>
         <Cell><Data ss:Type="String">11.7, 18.1</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Kontrak event + subscriber API</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">EventBusService + lead event emissions (lead.created/updated/assigned/converted)</Data></Cell>
       </Row>
       <Row ss:StyleID="Todo">
         <Cell><Data ss:Type="String">PLUG-003</Data></Cell>
@@ -472,14 +472,14 @@
         <Cell><Data ss:Type="String">Registry + dynamic routing</Data></Cell>
       </Row>
 
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">NFR-001</Data></Cell>
         <Cell><Data ss:Type="String">Non-Functional</Data></Cell>
         <Cell><Data ss:Type="String">API versioning (v1) + docs (OpenAPI)</Data></Cell>
         <Cell><Data ss:Type="String">12.5, 19.2</Data></Cell>
         <Cell><Data ss:Type="String">Should Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Swagger module + route prefix</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Nest URI versioning (/v1) + Swagger UI at /docs</Data></Cell>
       </Row>
       <Row ss:StyleID="Todo">
         <Cell><Data ss:Type="String">NFR-002</Data></Cell>
@@ -509,14 +509,14 @@
         <Cell><Data ss:Type="String">Done</Data></Cell>
         <Cell><Data ss:Type="String">Belum ada edit/delete/convert di UI</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">WEB-003</Data></Cell>
         <Cell><Data ss:Type="String">Frontend</Data></Cell>
         <Cell><Data ss:Type="String">UI untuk convert lead + link ke Account/Contact/Opportunity hasil convert</Data></Cell>
         <Cell><Data ss:Type="String">9.1, 16.1</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
-        <Cell><Data ss:Type="String">Endpoint sudah ada</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
+        <Cell><Data ss:Type="String">Convert button on Leads page + links to new detail pages (accounts/contacts/opportunities)</Data></Cell>
       </Row>
       <Row ss:StyleID="Todo">
         <Cell><Data ss:Type="String">WEB-004</Data></Cell>

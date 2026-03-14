@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { clearToken, getApiBaseUrl, getToken } from '@/lib/api';
 
@@ -14,12 +15,26 @@ type Lead = {
   createdAt: string;
 };
 
+type ConvertResult = {
+  leadId: string;
+  accountId: string;
+  contactId: string;
+  opportunityId: string;
+};
+
 export default function LeadsPage() {
   const router = useRouter();
   const apiBaseUrl = useMemo(() => getApiBaseUrl(), []);
   const [items, setItems] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [converting, setConverting] = useState<Record<string, boolean>>({});
+  const [convertResultByLeadId, setConvertResultByLeadId] = useState<
+    Record<string, ConvertResult | undefined>
+  >({});
+  const [actionErrorByLeadId, setActionErrorByLeadId] = useState<
+    Record<string, string | null | undefined>
+  >({});
 
   const [fullName, setFullName] = useState('');
   const [companyName, setCompanyName] = useState('');
@@ -104,6 +119,42 @@ export default function LeadsPage() {
     }
   }
 
+  async function onConvert(leadId: string) {
+    const token = getToken();
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
+    setActionErrorByLeadId((prev) => ({ ...prev, [leadId]: null }));
+    setConverting((prev) => ({ ...prev, [leadId]: true }));
+    try {
+      const res = await fetch(`${apiBaseUrl}/leads/${leadId}/convert`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.status === 401) {
+        clearToken();
+        router.push('/login');
+        return;
+      }
+
+      if (!res.ok) {
+        setActionErrorByLeadId((prev) => ({ ...prev, [leadId]: 'Gagal convert lead' }));
+        return;
+      }
+
+      const data = (await res.json()) as ConvertResult;
+      setConvertResultByLeadId((prev) => ({ ...prev, [leadId]: data }));
+      await load();
+    } catch {
+      setActionErrorByLeadId((prev) => ({ ...prev, [leadId]: 'Terjadi error saat convert lead' }));
+    } finally {
+      setConverting((prev) => ({ ...prev, [leadId]: false }));
+    }
+  }
+
   return (
     <main style={{ padding: 24 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -157,6 +208,9 @@ export default function LeadsPage() {
               <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
                 Created
               </th>
+              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -169,6 +223,35 @@ export default function LeadsPage() {
                 <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>{lead.status}</td>
                 <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>
                   {new Date(lead.createdAt).toLocaleString()}
+                </td>
+                <td style={{ borderBottom: '1px solid #eee', padding: 8 }}>
+                  <div style={{ display: 'grid', gap: 8 }}>
+                    <button
+                      type="button"
+                      disabled={converting[lead.id] || lead.status === 'CONVERTED'}
+                      onClick={() => void onConvert(lead.id)}
+                    >
+                      {converting[lead.id] ? 'Converting…' : 'Convert'}
+                    </button>
+                    {actionErrorByLeadId[lead.id] ? (
+                      <div style={{ color: 'crimson' }}>{actionErrorByLeadId[lead.id]}</div>
+                    ) : null}
+                    {convertResultByLeadId[lead.id] ? (
+                      <div style={{ display: 'grid', gap: 4 }}>
+                        <Link href={`/accounts/${convertResultByLeadId[lead.id]!.accountId}`}>
+                          Account: {convertResultByLeadId[lead.id]!.accountId}
+                        </Link>
+                        <Link href={`/contacts/${convertResultByLeadId[lead.id]!.contactId}`}>
+                          Contact: {convertResultByLeadId[lead.id]!.contactId}
+                        </Link>
+                        <Link
+                          href={`/opportunities/${convertResultByLeadId[lead.id]!.opportunityId}`}
+                        >
+                          Opportunity: {convertResultByLeadId[lead.id]!.opportunityId}
+                        </Link>
+                      </div>
+                    ) : null}
+                  </div>
                 </td>
               </tr>
             ))}

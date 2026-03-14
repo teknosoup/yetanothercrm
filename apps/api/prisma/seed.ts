@@ -39,6 +39,10 @@ async function main() {
     'dashboard.read',
     'audit.read',
     'search.read',
+    'notification.read',
+    'notification.update',
+    'plugin.read',
+    'plugin.manage',
     'user.read',
     'user.manage',
     'role.manage',
@@ -121,6 +125,8 @@ async function main() {
     'opportunity.read',
     'opportunity.update',
     'search.read',
+    'notification.read',
+    'notification.update',
   ]
     .map((k) => permissionByKey.get(k)?.id)
     .filter((id): id is string => Boolean(id));
@@ -130,6 +136,8 @@ async function main() {
     'lead.read',
     'dashboard.read',
     'search.read',
+    'notification.read',
+    'notification.update',
   ]
     .map((k) => permissionByKey.get(k)?.id)
     .filter((id): id is string => Boolean(id));
@@ -146,6 +154,8 @@ async function main() {
     'activity.read',
     'activity.update',
     'search.read',
+    'notification.read',
+    'notification.update',
   ]
     .map((k) => permissionByKey.get(k)?.id)
     .filter((id): id is string => Boolean(id));
@@ -164,6 +174,8 @@ async function main() {
     'audit.read',
     'search.read',
     'user.read',
+    'notification.read',
+    'notification.update',
   ]
     .map((k) => permissionByKey.get(k)?.id)
     .filter((id): id is string => Boolean(id));
@@ -177,6 +189,8 @@ async function main() {
     'audit.read',
     'search.read',
     'user.read',
+    'notification.read',
+    'notification.update',
   ]
     .map((k) => permissionByKey.get(k)?.id)
     .filter((id): id is string => Boolean(id));
