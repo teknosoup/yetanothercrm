@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { EventBusService } from '../event-bus/event-bus.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { ListContactsQuery } from './dto/list-contacts.query';
@@ -15,6 +16,7 @@ export class ContactsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
+    private readonly eventBus: EventBusService,
   ) {}
 
   async list(query: ListContactsQuery) {
@@ -362,6 +364,14 @@ export class ContactsService {
       after: contact,
     });
 
+    this.eventBus.emit({
+      type: 'contact.created',
+      actorUserId,
+      entityType: 'contact',
+      entityId: contact.id,
+      payload: { after: contact },
+    });
+
     return contact;
   }
 
@@ -431,6 +441,14 @@ export class ContactsService {
       after: updated,
     });
 
+    this.eventBus.emit({
+      type: 'contact.updated',
+      actorUserId,
+      entityType: 'contact',
+      entityId: updated.id,
+      payload: { before: existing, after: updated },
+    });
+
     return updated;
   }
 
@@ -446,6 +464,14 @@ export class ContactsService {
       entityType: 'contact',
       entityId: existing.id,
       before: existing,
+    });
+
+    this.eventBus.emit({
+      type: 'contact.deleted',
+      actorUserId,
+      entityType: 'contact',
+      entityId: existing.id,
+      payload: { before: existing },
     });
 
     return { id };

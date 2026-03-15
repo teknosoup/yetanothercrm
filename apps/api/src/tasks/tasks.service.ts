@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Prisma, TaskStatus } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { EventBusService } from '../event-bus/event-bus.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { ListTasksQuery } from './dto/list-tasks.query';
@@ -15,6 +16,7 @@ export class TasksService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
+    private readonly eventBus: EventBusService,
   ) {}
 
   async list(query: ListTasksQuery) {
@@ -202,6 +204,14 @@ export class TasksService {
       after: task,
     });
 
+    this.eventBus.emit({
+      type: 'task.created',
+      actorUserId,
+      entityType: 'task',
+      entityId: task.id,
+      payload: { after: task },
+    });
+
     return task;
   }
 
@@ -250,6 +260,14 @@ export class TasksService {
       after: updated,
     });
 
+    this.eventBus.emit({
+      type: 'task.updated',
+      actorUserId,
+      entityType: 'task',
+      entityId: updated.id,
+      payload: { before: existing, after: updated },
+    });
+
     return updated;
   }
 
@@ -265,6 +283,14 @@ export class TasksService {
       entityType: 'task',
       entityId: existing.id,
       before: existing,
+    });
+
+    this.eventBus.emit({
+      type: 'task.deleted',
+      actorUserId,
+      entityType: 'task',
+      entityId: existing.id,
+      payload: { before: existing },
     });
 
     return { id };

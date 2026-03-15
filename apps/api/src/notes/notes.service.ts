@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { EventBusService } from '../event-bus/event-bus.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNoteCommentDto } from './dto/create-note-comment.dto';
@@ -27,6 +28,7 @@ export class NotesService {
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
     private readonly notificationsService: NotificationsService,
+    private readonly eventBus: EventBusService,
   ) {}
 
   private async ensureEntityExists(entityType: string, entityId: string) {
@@ -126,6 +128,14 @@ export class NotesService {
       after: note,
     });
 
+    this.eventBus.emit({
+      type: 'note.created',
+      actorUserId,
+      entityType: 'note',
+      entityId: note.id,
+      payload: { after: note },
+    });
+
     return note;
   }
 
@@ -165,6 +175,14 @@ export class NotesService {
       after: updated,
     });
 
+    this.eventBus.emit({
+      type: 'note.updated',
+      actorUserId,
+      entityType: 'note',
+      entityId: updated.id,
+      payload: { before: existing, after: updated },
+    });
+
     return updated;
   }
 
@@ -180,6 +198,14 @@ export class NotesService {
       entityType: 'note',
       entityId: existing.id,
       before: existing,
+    });
+
+    this.eventBus.emit({
+      type: 'note.deleted',
+      actorUserId,
+      entityType: 'note',
+      entityId: existing.id,
+      payload: { before: existing },
     });
 
     return { id };

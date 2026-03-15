@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { OpportunityStage, Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { EventBusService } from '../event-bus/event-bus.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ChangeStageDto } from './dto/change-stage.dto';
 import { CreateOpportunityDto } from './dto/create-opportunity.dto';
@@ -16,6 +17,7 @@ export class OpportunitiesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
+    private readonly eventBus: EventBusService,
   ) {}
 
   private weightedValue(
@@ -114,6 +116,14 @@ export class OpportunitiesService {
       after: opportunity,
     });
 
+    this.eventBus.emit({
+      type: 'opportunity.created',
+      actorUserId,
+      entityType: 'opportunity',
+      entityId: opportunity.id,
+      payload: { after: opportunity },
+    });
+
     return opportunity;
   }
 
@@ -179,6 +189,14 @@ export class OpportunitiesService {
       after: updated,
     });
 
+    this.eventBus.emit({
+      type: 'opportunity.updated',
+      actorUserId,
+      entityType: 'opportunity',
+      entityId: updated.id,
+      payload: { before: existing, after: updated },
+    });
+
     return updated;
   }
 
@@ -232,6 +250,18 @@ export class OpportunitiesService {
       after: updated,
     });
 
+    this.eventBus.emit({
+      type: 'opportunity.stage_changed',
+      actorUserId,
+      entityType: 'opportunity',
+      entityId: updated.id,
+      payload: {
+        fromStage: existing.stage,
+        toStage: dto.stage,
+        after: updated,
+      },
+    });
+
     return updated;
   }
 
@@ -264,6 +294,14 @@ export class OpportunitiesService {
       entityType: 'opportunity',
       entityId: existing.id,
       before: existing,
+    });
+
+    this.eventBus.emit({
+      type: 'opportunity.deleted',
+      actorUserId,
+      entityType: 'opportunity',
+      entityId: existing.id,
+      payload: { before: existing },
     });
 
     return { id };

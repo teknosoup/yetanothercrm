@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { EventBusService } from '../event-bus/event-bus.service';
+import { AuditService } from '../audit/audit.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { ListPluginsQuery } from './dto/list-plugins.query';
 import { UpsertPluginDto } from './dto/upsert-plugin.dto';
 
@@ -18,6 +20,8 @@ export type PluginPermission = {
 export type PluginContext = {
   prisma: PrismaService;
   eventBus: EventBusService;
+  auditService: AuditService;
+  notificationsService: NotificationsService;
 };
 
 export type CrmPlugin = {
@@ -39,6 +43,8 @@ export class PluginsService implements OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
     private readonly eventBus: EventBusService,
+    private readonly auditService: AuditService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async onModuleInit() {
@@ -217,6 +223,8 @@ export class PluginsService implements OnModuleInit {
       const ctx: PluginContext = {
         prisma: this.prisma,
         eventBus: this.eventBus,
+        auditService: this.auditService,
+        notificationsService: this.notificationsService,
       };
 
       await plugin.onActivate?.(ctx);
@@ -234,6 +242,8 @@ export class PluginsService implements OnModuleInit {
       const ctx: PluginContext = {
         prisma: this.prisma,
         eventBus: this.eventBus,
+        auditService: this.auditService,
+        notificationsService: this.notificationsService,
       };
 
       await plugin.onDeactivate?.(ctx);

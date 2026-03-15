@@ -492,6 +492,14 @@ export class LeadsService {
       before: existing,
     });
 
+    this.eventBus.emit({
+      type: 'lead.deleted',
+      actorUserId,
+      entityType: 'lead',
+      entityId: existing.id,
+      payload: { before: existing },
+    });
+
     return { id };
   }
 

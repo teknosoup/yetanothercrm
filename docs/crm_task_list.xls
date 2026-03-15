@@ -536,4 +536,400 @@
       <TopRowBottomPane>1</TopRowBottomPane>
     </WorksheetOptions>
   </Worksheet>
+
+  <Worksheet ss:Name="Backlog">
+    <Table>
+      <Row ss:StyleID="Header">
+        <Cell><Data ss:Type="String">Track</Data></Cell>
+        <Cell><Data ss:Type="String">Epic ID</Data></Cell>
+        <Cell><Data ss:Type="String">Epic</Data></Cell>
+        <Cell><Data ss:Type="String">Story ID</Data></Cell>
+        <Cell><Data ss:Type="String">User Story</Data></Cell>
+        <Cell><Data ss:Type="String">Acceptance Criteria</Data></Cell>
+        <Cell><Data ss:Type="String">Dependencies</Data></Cell>
+        <Cell><Data ss:Type="String">Priority</Data></Cell>
+        <Cell><Data ss:Type="String">Sprint</Data></Cell>
+        <Cell><Data ss:Type="String">Status</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C1</Data></Cell>
+        <Cell><Data ss:Type="String">Custom Fields &amp; Layout per Entity</Data></Cell>
+        <Cell><Data ss:Type="String">C1-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai admin, saya bisa membuat custom field (text/number/date/boolean/select) untuk entity tertentu.</Data></Cell>
+        <Cell><Data ss:Type="String">Admin bisa CRUD custom field (nama unik per entity, type, required, options untuk select). Data custom field bisa dibaca/ditulis via API tanpa mengubah field bawaan.</Data></Cell>
+        <Cell><Data ss:Type="String">RBAC (user.manage atau permission admin khusus), DB schema untuk definisi field</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:S2; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C1</Data></Cell>
+        <Cell><Data ss:Type="String">Custom Fields &amp; Layout per Entity</Data></Cell>
+        <Cell><Data ss:Type="String">C1-S2</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai user, saya bisa melihat custom field muncul di form create/edit dan detail page.</Data></Cell>
+        <Cell><Data ss:Type="String">UI render field sesuai konfigurasi (label, required, options). Value tersimpan pada create/update dan tampil di detail.</Data></Cell>
+        <Cell><Data ss:Type="String">C1-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:S2; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C1</Data></Cell>
+        <Cell><Data ss:Type="String">Custom Fields &amp; Layout per Entity</Data></Cell>
+        <Cell><Data ss:Type="String">C1-S3</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai user, saya bisa filter/sort list berdasarkan custom field tertentu.</Data></Cell>
+        <Cell><Data ss:Type="String">List endpoint mendukung filter untuk field yang ditandai filterable/sortable. UI menyediakan filter basic untuk custom fields.</Data></Cell>
+        <Cell><Data ss:Type="String">C1-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C2</Data></Cell>
+        <Cell><Data ss:Type="String">Pipeline Configuration &amp; Basic Forecasting</Data></Cell>
+        <Cell><Data ss:Type="String">C2-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai admin, saya bisa mengubah daftar stage opportunity (nama, urutan, probabilitas default, open/won/lost).</Data></Cell>
+        <Cell><Data ss:Type="String">Stage bisa diurutkan; opportunity hanya memakai stage valid; perubahan stage tidak merusak data existing (mapping/fallback jelas).</Data></Cell>
+        <Cell><Data ss:Type="String">DB schema stage config, RBAC admin</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:S3; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C2</Data></Cell>
+        <Cell><Data ss:Type="String">Pipeline Configuration &amp; Basic Forecasting</Data></Cell>
+        <Cell><Data ss:Type="String">C2-S2</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai sales manager, saya bisa melihat forecast ringkas (pipeline total, weighted, won/lost per periode).</Data></Cell>
+        <Cell><Data ss:Type="String">Endpoint metrics mendukung filter periode/owner/team; hasil mencakup total &amp; weighted value per stage dan ringkasan won/lost.</Data></Cell>
+        <Cell><Data ss:Type="String">C2-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:S3; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C3</Data></Cell>
+        <Cell><Data ss:Type="String">Report Builder (Ad-hoc) &amp; Dashboard Builder</Data></Cell>
+        <Cell><Data ss:Type="String">C3-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai user, saya bisa membuat report ad-hoc untuk satu entity dengan kolom terpilih, filter, grouping sederhana.</Data></Cell>
+        <Cell><Data ss:Type="String">Report bisa disimpan (nama, entity, kolom, filter, grouping) dan dibuka ulang. Report menghormati permission (kolom sensitif tidak muncul bila tidak berhak).</Data></Cell>
+        <Cell><Data ss:Type="String">C1 (opsional untuk custom fields), RBAC per entity</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:S3; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C3</Data></Cell>
+        <Cell><Data ss:Type="String">Report Builder (Ad-hoc) &amp; Dashboard Builder</Data></Cell>
+        <Cell><Data ss:Type="String">C3-S2</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai user, saya bisa export report ke CSV.</Data></Cell>
+        <Cell><Data ss:Type="String">Export menghasilkan CSV valid sesuai filter/kolom, dengan pagination/limit yang jelas untuk dataset besar.</Data></Cell>
+        <Cell><Data ss:Type="String">C3-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C3</Data></Cell>
+        <Cell><Data ss:Type="String">Report Builder (Ad-hoc) &amp; Dashboard Builder</Data></Cell>
+        <Cell><Data ss:Type="String">C3-S3</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai admin, saya bisa menyusun dashboard dari widget report yang tersimpan.</Data></Cell>
+        <Cell><Data ss:Type="String">Dashboard bisa punya beberapa widget (table/chart basic) dan bisa di-scope per role/team.</Data></Cell>
+        <Cell><Data ss:Type="String">C3-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Could Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C4</Data></Cell>
+        <Cell><Data ss:Type="String">Admin UI (Users/Roles/Permissions) &amp; Audit Viewer</Data></Cell>
+        <Cell><Data ss:Type="String">C4-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai admin, saya bisa mengelola role dan mapping permission untuk role.</Data></Cell>
+        <Cell><Data ss:Type="String">UI admin dapat CRUD role dan assign permission keys. Perubahan langsung memengaruhi akses endpoint yang memakai RequirePermissions.</Data></Cell>
+        <Cell><Data ss:Type="String">RBAC/permissions sudah ada di API; butuh endpoints role/permission &amp; UI</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C4</Data></Cell>
+        <Cell><Data ss:Type="String">Admin UI (Users/Roles/Permissions) &amp; Audit Viewer</Data></Cell>
+        <Cell><Data ss:Type="String">C4-S2</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai admin, saya bisa melihat audit log dengan filter (actor, entity, action, date range).</Data></Cell>
+        <Cell><Data ss:Type="String">Endpoint audit mendukung pagination + filter; UI menampilkan list &amp; detail before/after dengan sanitasi field sensitif.</Data></Cell>
+        <Cell><Data ss:Type="String">Audit API sudah ada; butuh UI viewer</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:S2</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C4</Data></Cell>
+        <Cell><Data ss:Type="String">Admin UI (Users/Roles/Permissions) &amp; Audit Viewer</Data></Cell>
+        <Cell><Data ss:Type="String">C4-S3</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai admin, saya bisa mengelola lifecycle plugin (lihat, activate/deactivate, edit config).</Data></Cell>
+        <Cell><Data ss:Type="String">UI admin bisa toggle active dan edit config dengan validasi skema minimal. Aktivasi/deaktivasi tercatat audit.</Data></Cell>
+        <Cell><Data ss:Type="String">Plugins API sudah ada; perlu UI edit config &amp; audit</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:S2</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C5</Data></Cell>
+        <Cell><Data ss:Type="String">Attachments (File Upload) &amp; Access Control</Data></Cell>
+        <Cell><Data ss:Type="String">C5-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai user, saya bisa upload attachment ke entity (Lead/Account/Contact/Opportunity/Task/Activity/Note).</Data></Cell>
+        <Cell><Data ss:Type="String">Upload dibatasi ukuran &amp; tipe file; file tersimpan dengan metadata (uploader, createdAt, entityType/id). Download hanya bila user punya read permission pada entity terkait.</Data></Cell>
+        <Cell><Data ss:Type="String">Storage strategy (local/S3), RBAC per entity</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:S3</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C5</Data></Cell>
+        <Cell><Data ss:Type="String">Attachments (File Upload) &amp; Access Control</Data></Cell>
+        <Cell><Data ss:Type="String">C5-S2</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai user, saya bisa melihat daftar attachment dan menghapus attachment jika berhak.</Data></Cell>
+        <Cell><Data ss:Type="String">Delete menghapus file/akses (atau soft-delete) dan tercatat di audit log. UI menampilkan list attachment pada detail entity.</Data></Cell>
+        <Cell><Data ss:Type="String">C5-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Could Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C6</Data></Cell>
+        <Cell><Data ss:Type="String">Plugin Platform Upgrade</Data></Cell>
+        <Cell><Data ss:Type="String">C6-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai platform, sistem mem-publish event standar untuk semua entity (created/updated/deleted, plus domain events).</Data></Cell>
+        <Cell><Data ss:Type="String">Ada daftar event type standar (constant/enum). CRUD utama mem-emit event konsisten dengan actorUserId + entityType/id.</Data></Cell>
+        <Cell><Data ss:Type="String">EventBus sudah ada; perlu coverage di semua service</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:S1; Support:S1</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C6</Data></Cell>
+        <Cell><Data ss:Type="String">Plugin Platform Upgrade</Data></Cell>
+        <Cell><Data ss:Type="String">C6-S2</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai plugin developer, saya bisa expose endpoint plugin dengan namespace aman (/plugins/:key/*) dan RBAC.</Data></Cell>
+        <Cell><Data ss:Type="String">Routing plugin tidak bisa override route core. Semua endpoint plugin lewat JwtAuthGuard + RequirePermissions. Plugin dapat mendaftarkan permission keys sendiri.</Data></Cell>
+        <Cell><Data ss:Type="String">PluginsService.register permissions sudah ada; butuh routing/dispatch layer</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:S1; Support:S1</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C6</Data></Cell>
+        <Cell><Data ss:Type="String">Plugin Platform Upgrade</Data></Cell>
+        <Cell><Data ss:Type="String">C6-S3</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai admin, saya bisa menyimpan config plugin dengan pemisahan config biasa vs secret.</Data></Cell>
+        <Cell><Data ss:Type="String">Secret tidak pernah dikirim balik full ke UI setelah disimpan; ada mekanisme update/rotate; akses config dibatasi permission.</Data></Cell>
+        <Cell><Data ss:Type="String">DB schema plugin config, UI admin (C4-S3)</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:S2</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C6</Data></Cell>
+        <Cell><Data ss:Type="String">Plugin Platform Upgrade</Data></Cell>
+        <Cell><Data ss:Type="String">C6-S4</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai frontend, saya punya extension points stabil (menu/tab/widget/action) pada halaman core.</Data></Cell>
+        <Cell><Data ss:Type="String">UI core menampilkan slot plugin hanya untuk plugin aktif. Slot dapat memanggil endpoint plugin dan menghormati permission.</Data></Cell>
+        <Cell><Data ss:Type="String">C6-S2</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:S2; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C7</Data></Cell>
+        <Cell><Data ss:Type="String">Service CRM: Ticketing/Case Management</Data></Cell>
+        <Cell><Data ss:Type="String">C7-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai customer support, saya bisa membuat tiket (case) terkait account/contact dengan status, priority, SLA.</Data></Cell>
+        <Cell><Data ss:Type="String">Case punya assignment + status flow; perubahan tercatat di timeline/audit; RBAC terpisah (case.read/create/update).</Data></Cell>
+        <Cell><Data ss:Type="String">C4 (admin), C5 (attachments) opsional</Data></Cell>
+        <Cell><Data ss:Type="String">Could Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:S3</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">CORE</Data></Cell>
+        <Cell><Data ss:Type="String">C7</Data></Cell>
+        <Cell><Data ss:Type="String">Service CRM: Ticketing/Case Management</Data></Cell>
+        <Cell><Data ss:Type="String">C7-S2</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai support lead, saya bisa melihat queue dan SLA breach.</Data></Cell>
+        <Cell><Data ss:Type="String">Ada endpoint queue + filter; dashboard menampilkan metrik SLA dasar dan backlog per assignee.</Data></Cell>
+        <Cell><Data ss:Type="String">C7-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Could Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:S3</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">PLUGIN</Data></Cell>
+        <Cell><Data ss:Type="String">P1</Data></Cell>
+        <Cell><Data ss:Type="String">Lead Assignment Rules</Data></Cell>
+        <Cell><Data ss:Type="String">P1-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai admin, saya bisa set aturan assignment lead (round-robin/berdasarkan region/source).</Data></Cell>
+        <Cell><Data ss:Type="String">Plugin menyimpan rules di config; perubahan tidak butuh deploy core. Ada validasi rule dan tombol test (simulate) pada sample lead.</Data></Cell>
+        <Cell><Data ss:Type="String">C6-S1 (event lead.created), C6-S3 (config), C6-S2 bila butuh endpoint plugin</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:S1; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">PLUGIN</Data></Cell>
+        <Cell><Data ss:Type="String">P1</Data></Cell>
+        <Cell><Data ss:Type="String">Lead Assignment Rules</Data></Cell>
+        <Cell><Data ss:Type="String">P1-S2</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai sistem, saat lead dibuat, owner otomatis ditentukan oleh rule.</Data></Cell>
+        <Cell><Data ss:Type="String">Pada event lead.created, plugin menentukan owner dan update lead. Audit log mencatat perubahan. Jika tidak match, fallback ke creator.</Data></Cell>
+        <Cell><Data ss:Type="String">P1-S1, C6-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Must Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:S1; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">PLUGIN</Data></Cell>
+        <Cell><Data ss:Type="String">P2</Data></Cell>
+        <Cell><Data ss:Type="String">Lead Scoring Rules</Data></Cell>
+        <Cell><Data ss:Type="String">P2-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai sales ops, saya bisa mendefinisikan scoring rule berbasis atribut lead.</Data></Cell>
+        <Cell><Data ss:Type="String">Rule bisa diaktif/nonaktif. Plugin menyediakan evaluasi otomatis (lead.created/updated) dan manual (run scoring) serta menyimpan hasil score.</Data></Cell>
+        <Cell><Data ss:Type="String">C6-S1, C6-S3, C1 (opsional untuk custom score fields)</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:S2; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">PLUGIN</Data></Cell>
+        <Cell><Data ss:Type="String">P2</Data></Cell>
+        <Cell><Data ss:Type="String">Lead Scoring Rules</Data></Cell>
+        <Cell><Data ss:Type="String">P2-S2</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai user, saya bisa melihat score dan alasan (explain) ringkas.</Data></Cell>
+        <Cell><Data ss:Type="String">UI menampilkan score + ringkasan rule yang applied. Breakdown sensitif bisa dibatasi role.</Data></Cell>
+        <Cell><Data ss:Type="String">C6-S4 (UI slot) atau perubahan UI core lead detail</Data></Cell>
+        <Cell><Data ss:Type="String">Could Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">PLUGIN</Data></Cell>
+        <Cell><Data ss:Type="String">P3</Data></Cell>
+        <Cell><Data ss:Type="String">Reminder &amp; Notification Automation</Data></Cell>
+        <Cell><Data ss:Type="String">P3-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai user, saya bisa membuat rule reminder (mis. opportunity stage X &gt; 7 hari tanpa activity).</Data></Cell>
+        <Cell><Data ss:Type="String">Rule bisa diaktif/nonaktif. Eksekusi event-driven atau scheduled. Ada dedupe agar tidak spam (per entity per periode).</Data></Cell>
+        <Cell><Data ss:Type="String">C6-S1, notifications module sudah ada</Data></Cell>
+        <Cell><Data ss:Type="String">Should Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:S1</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">PLUGIN</Data></Cell>
+        <Cell><Data ss:Type="String">P4</Data></Cell>
+        <Cell><Data ss:Type="String">Email &amp; Calendar Sync (Logging ke Timeline)</Data></Cell>
+        <Cell><Data ss:Type="String">P4-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai admin, saya bisa menghubungkan provider (Google/M365) untuk sync email/calendar (ingest).</Data></Cell>
+        <Cell><Data ss:Type="String">Token disimpan sebagai secret plugin; koneksi bisa di-test dan di-disable; ada retry/backoff untuk error provider.</Data></Cell>
+        <Cell><Data ss:Type="String">C6-S3 (secrets), C6-S2 (endpoint/webhook), C6-S1 (events optional)</Data></Cell>
+        <Cell><Data ss:Type="String">Could Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">PLUGIN</Data></Cell>
+        <Cell><Data ss:Type="String">P4</Data></Cell>
+        <Cell><Data ss:Type="String">Email &amp; Calendar Sync (Logging ke Timeline)</Data></Cell>
+        <Cell><Data ss:Type="String">P4-S2</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai sistem, email/meeting relevan di-log ke timeline entity berdasarkan email contact/lead.</Data></Cell>
+        <Cell><Data ss:Type="String">Sync membuat activity/note yang terhubung ke entity yang cocok; tidak membuat duplikat untuk message/event yang sama.</Data></Cell>
+        <Cell><Data ss:Type="String">Timeline/notes/activities sudah ada; butuh matching strategy</Data></Cell>
+        <Cell><Data ss:Type="String">Could Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">PLUGIN</Data></Cell>
+        <Cell><Data ss:Type="String">P5</Data></Cell>
+        <Cell><Data ss:Type="String">WhatsApp / Messaging Integration</Data></Cell>
+        <Cell><Data ss:Type="String">P5-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai user, saya bisa menjalankan action “Send WhatsApp” dari contact/lead/opportunity.</Data></Cell>
+        <Cell><Data ss:Type="String">Action hanya tampil jika plugin aktif. Aksi tercatat sebagai activity log dan punya throttling dasar.</Data></Cell>
+        <Cell><Data ss:Type="String">C6-S4 (action slot), C6-S3 (secrets) bila pakai API provider</Data></Cell>
+        <Cell><Data ss:Type="String">Could Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">PLUGIN</Data></Cell>
+        <Cell><Data ss:Type="String">P5</Data></Cell>
+        <Cell><Data ss:Type="String">WhatsApp / Messaging Integration</Data></Cell>
+        <Cell><Data ss:Type="String">P5-S2</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai sistem, pesan inbound dapat dibuat jadi activity/ticket draft.</Data></Cell>
+        <Cell><Data ss:Type="String">Inbound message masuk ke timeline. Jika tidak bisa match entity, masuk ke inbox “unmatched”.</Data></Cell>
+        <Cell><Data ss:Type="String">C6-S2 (webhook endpoints), C7 (opsional jika jadi ticket)</Data></Cell>
+        <Cell><Data ss:Type="String">Could Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">PLUGIN</Data></Cell>
+        <Cell><Data ss:Type="String">P6</Data></Cell>
+        <Cell><Data ss:Type="String">Data Enrichment (Company/Person)</Data></Cell>
+        <Cell><Data ss:Type="String">P6-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai user, saya bisa menjalankan enrichment untuk lead/account/contact.</Data></Cell>
+        <Cell><Data ss:Type="String">Plugin memanggil provider eksternal dan menulis hasil ke field whitelist atau sebagai suggestion. Hasil menyimpan sumber data dan timestamp.</Data></Cell>
+        <Cell><Data ss:Type="String">C6-S2/C6-S3 (endpoint+secrets), C1 (opsional untuk custom fields)</Data></Cell>
+        <Cell><Data ss:Type="String">Could Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+      <Row ss:StyleID="Todo">
+        <Cell><Data ss:Type="String">PLUGIN</Data></Cell>
+        <Cell><Data ss:Type="String">P6</Data></Cell>
+        <Cell><Data ss:Type="String">Data Enrichment (Company/Person)</Data></Cell>
+        <Cell><Data ss:Type="String">P6-S2</Data></Cell>
+        <Cell><Data ss:Type="String">Sebagai admin, saya bisa membatasi field mana yang boleh dioverwrite oleh enrichment.</Data></Cell>
+        <Cell><Data ss:Type="String">Ada whitelist field yang boleh ditulis. Field lain hanya disimpan sebagai suggestion dan tidak mengubah record sampai disetujui user.</Data></Cell>
+        <Cell><Data ss:Type="String">P6-S1</Data></Cell>
+        <Cell><Data ss:Type="String">Could Have</Data></Cell>
+        <Cell><Data ss:Type="String">Sales:Backlog; Support:Backlog</Data></Cell>
+        <Cell><Data ss:Type="String">Todo</Data></Cell>
+      </Row>
+    </Table>
+    <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+      <FreezePanes/>
+      <FrozenNoSplit/>
+      <SplitHorizontal>1</SplitHorizontal>
+      <TopRowBottomPane>1</TopRowBottomPane>
+    </WorksheetOptions>
+  </Worksheet>
 </Workbook>

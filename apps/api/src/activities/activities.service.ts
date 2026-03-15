@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { EventBusService } from '../event-bus/event-bus.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { ListActivitiesQuery } from './dto/list-activities.query';
@@ -15,6 +16,7 @@ export class ActivitiesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
+    private readonly eventBus: EventBusService,
   ) {}
 
   async list(query: ListActivitiesQuery) {
@@ -136,6 +138,14 @@ export class ActivitiesService {
       after: activity,
     });
 
+    this.eventBus.emit({
+      type: 'activity.created',
+      actorUserId,
+      entityType: 'activity',
+      entityId: activity.id,
+      payload: { after: activity },
+    });
+
     return activity;
   }
 
@@ -174,6 +184,14 @@ export class ActivitiesService {
       after: updated,
     });
 
+    this.eventBus.emit({
+      type: 'activity.updated',
+      actorUserId,
+      entityType: 'activity',
+      entityId: updated.id,
+      payload: { before: existing, after: updated },
+    });
+
     return updated;
   }
 
@@ -189,6 +207,14 @@ export class ActivitiesService {
       entityType: 'activity',
       entityId: existing.id,
       before: existing,
+    });
+
+    this.eventBus.emit({
+      type: 'activity.deleted',
+      actorUserId,
+      entityType: 'activity',
+      entityId: existing.id,
+      payload: { before: existing },
     });
 
     return { id };
