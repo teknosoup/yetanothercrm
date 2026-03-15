@@ -21,6 +21,8 @@ import { useMemo, useState, useSyncExternalStore } from 'react';
    { href: '/activities', label: 'Activities' },
    { href: '/dashboard', label: 'Dashboard' },
    { href: '/plugins', label: 'Plugins' },
+   { href: '/audit', label: 'Audit' },
+   { href: '/admin', label: 'Admin' },
  ];
  
  export function AppShell({ children }: { children: React.ReactNode }) {

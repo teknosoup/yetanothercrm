@@ -3,10 +3,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { CustomFieldEntityType, Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { EventBusService } from '../event-bus/event-bus.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { CustomFieldsService } from '../custom-fields/custom-fields.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { ListAccountsQuery } from './dto/list-accounts.query';
 import { UpdateAccountDto } from './dto/update-account.dto';
@@ -17,6 +18,7 @@ export class AccountsService {
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
     private readonly eventBus: EventBusService,
+    private readonly customFieldsService: CustomFieldsService,
   ) {}
 
   async list(query: ListAccountsQuery) {
@@ -333,38 +335,58 @@ export class AccountsService {
   }
 
   async create(dto: CreateAccountDto, actorUserId: string) {
-    const account = await this.prisma.account.create({
-      data: {
-        companyName: dto.companyName,
-        type: dto.type,
-        segment: dto.segment,
-        industry: dto.industry,
-        address: dto.address,
-        taxId: dto.taxId,
-        status: dto.status ?? 'ACTIVE',
-        annualValueEstimate: dto.annualValueEstimate,
-        notes: dto.notes,
-        ownerId: actorUserId,
+    const accountWithCustomFields = await this.prisma.$transaction(
+      async (tx) => {
+        const account = await tx.account.create({
+          data: {
+            companyName: dto.companyName,
+            type: dto.type,
+            segment: dto.segment,
+            industry: dto.industry,
+            address: dto.address,
+            taxId: dto.taxId,
+            status: dto.status ?? 'ACTIVE',
+            annualValueEstimate: dto.annualValueEstimate,
+            notes: dto.notes,
+            ownerId: actorUserId,
+          },
+        });
+
+        await this.customFieldsService.writeValues({
+          db: tx,
+          entityType: CustomFieldEntityType.ACCOUNT,
+          entityId: account.id,
+          customFields: dto.customFields,
+          requireAllRequired: true,
+        });
+
+        const customFields = await this.customFieldsService.getValuesMap(
+          tx,
+          CustomFieldEntityType.ACCOUNT,
+          account.id,
+        );
+
+        return { ...account, customFields };
       },
-    });
+    );
 
     await this.auditService.log({
       actorUserId,
       action: 'account.create',
       entityType: 'account',
-      entityId: account.id,
-      after: account,
+      entityId: accountWithCustomFields.id,
+      after: accountWithCustomFields,
     });
 
     this.eventBus.emit({
       type: 'account.created',
       actorUserId,
       entityType: 'account',
-      entityId: account.id,
-      payload: { after: account },
+      entityId: accountWithCustomFields.id,
+      payload: { after: accountWithCustomFields },
     });
 
-    return account;
+    return accountWithCustomFields;
   }
 
   async findOne(id: string) {
@@ -375,7 +397,12 @@ export class AccountsService {
       },
     });
     if (!account) throw new NotFoundException('Account not found');
-    return account;
+    const customFields = await this.customFieldsService.getValuesMap(
+      this.prisma,
+      CustomFieldEntityType.ACCOUNT,
+      id,
+    );
+    return { ...account, customFields };
   }
 
   async findRelations(id: string) {
@@ -404,39 +431,65 @@ export class AccountsService {
     const existing = await this.prisma.account.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException('Account not found');
 
-    const updated = await this.prisma.account.update({
-      where: { id },
-      data: {
-        companyName: dto.companyName,
-        type: dto.type,
-        segment: dto.segment,
-        industry: dto.industry,
-        address: dto.address,
-        taxId: dto.taxId,
-        status: dto.status,
-        annualValueEstimate: dto.annualValueEstimate,
-        notes: dto.notes,
+    const beforeCustomFields = await this.customFieldsService.getValuesMap(
+      this.prisma,
+      CustomFieldEntityType.ACCOUNT,
+      id,
+    );
+
+    const updatedWithCustomFields = await this.prisma.$transaction(
+      async (tx) => {
+        const updated = await tx.account.update({
+          where: { id },
+          data: {
+            companyName: dto.companyName,
+            type: dto.type,
+            segment: dto.segment,
+            industry: dto.industry,
+            address: dto.address,
+            taxId: dto.taxId,
+            status: dto.status,
+            annualValueEstimate: dto.annualValueEstimate,
+            notes: dto.notes,
+          },
+        });
+
+        await this.customFieldsService.writeValues({
+          db: tx,
+          entityType: CustomFieldEntityType.ACCOUNT,
+          entityId: id,
+          customFields: dto.customFields,
+          requireAllRequired: false,
+        });
+
+        const customFields = await this.customFieldsService.getValuesMap(
+          tx,
+          CustomFieldEntityType.ACCOUNT,
+          id,
+        );
+
+        return { ...updated, customFields };
       },
-    });
+    );
 
     await this.auditService.log({
       actorUserId,
       action: 'account.update',
       entityType: 'account',
-      entityId: updated.id,
-      before: existing,
-      after: updated,
+      entityId: updatedWithCustomFields.id,
+      before: { ...existing, customFields: beforeCustomFields },
+      after: updatedWithCustomFields,
     });
 
     this.eventBus.emit({
       type: 'account.updated',
       actorUserId,
       entityType: 'account',
-      entityId: updated.id,
-      payload: { before: existing, after: updated },
+      entityId: updatedWithCustomFields.id,
+      payload: { before: existing, after: updatedWithCustomFields },
     });
 
-    return updated;
+    return updatedWithCustomFields;
   }
 
   async remove(id: string, actorUserId: string) {

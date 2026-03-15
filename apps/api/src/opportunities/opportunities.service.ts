@@ -3,10 +3,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { OpportunityStage, Prisma } from '@prisma/client';
+import {
+  CustomFieldEntityType,
+  OpportunityStage,
+  Prisma,
+} from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { EventBusService } from '../event-bus/event-bus.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { CustomFieldsService } from '../custom-fields/custom-fields.service';
 import { ChangeStageDto } from './dto/change-stage.dto';
 import { CreateOpportunityDto } from './dto/create-opportunity.dto';
 import { ListOpportunitiesQuery } from './dto/list-opportunities.query';
@@ -18,6 +23,7 @@ export class OpportunitiesService {
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
     private readonly eventBus: EventBusService,
+    private readonly customFieldsService: CustomFieldsService,
   ) {}
 
   private weightedValue(
@@ -85,46 +91,66 @@ export class OpportunitiesService {
       if (!contact) throw new BadRequestException('Contact not found');
     }
 
-    const opportunity = await this.prisma.opportunity.create({
-      data: {
-        opportunityName: dto.opportunityName,
-        stage: dto.stage ?? OpportunityStage.PROSPECTING,
-        estimatedValue: dto.estimatedValue,
-        probability: dto.probability,
-        expectedCloseDate: dto.expectedCloseDate,
-        ownerId: actorUserId,
-        accountId: dto.accountId,
-        contactId: dto.contactId,
-      },
-    });
+    const opportunityWithCustomFields = await this.prisma.$transaction(
+      async (tx) => {
+        const opportunity = await tx.opportunity.create({
+          data: {
+            opportunityName: dto.opportunityName,
+            stage: dto.stage ?? OpportunityStage.PROSPECTING,
+            estimatedValue: dto.estimatedValue,
+            probability: dto.probability,
+            expectedCloseDate: dto.expectedCloseDate,
+            ownerId: actorUserId,
+            accountId: dto.accountId,
+            contactId: dto.contactId,
+          },
+        });
 
-    await this.prisma.opportunityStageHistory.create({
-      data: {
-        opportunityId: opportunity.id,
-        fromStage: null,
-        toStage: opportunity.stage,
-        actorUserId,
-        note: 'created',
+        await tx.opportunityStageHistory.create({
+          data: {
+            opportunityId: opportunity.id,
+            fromStage: null,
+            toStage: opportunity.stage,
+            actorUserId,
+            note: 'created',
+          },
+        });
+
+        await this.customFieldsService.writeValues({
+          db: tx,
+          entityType: CustomFieldEntityType.OPPORTUNITY,
+          entityId: opportunity.id,
+          customFields: dto.customFields,
+          requireAllRequired: true,
+        });
+
+        const customFields = await this.customFieldsService.getValuesMap(
+          tx,
+          CustomFieldEntityType.OPPORTUNITY,
+          opportunity.id,
+        );
+
+        return { ...opportunity, customFields };
       },
-    });
+    );
 
     await this.auditService.log({
       actorUserId,
       action: 'opportunity.create',
       entityType: 'opportunity',
-      entityId: opportunity.id,
-      after: opportunity,
+      entityId: opportunityWithCustomFields.id,
+      after: opportunityWithCustomFields,
     });
 
     this.eventBus.emit({
       type: 'opportunity.created',
       actorUserId,
       entityType: 'opportunity',
-      entityId: opportunity.id,
-      payload: { after: opportunity },
+      entityId: opportunityWithCustomFields.id,
+      payload: { after: opportunityWithCustomFields },
     });
 
-    return opportunity;
+    return opportunityWithCustomFields;
   }
 
   async findOne(id: string) {
@@ -137,12 +163,18 @@ export class OpportunitiesService {
       },
     });
     if (!opportunity) throw new NotFoundException('Opportunity not found');
+    const customFields = await this.customFieldsService.getValuesMap(
+      this.prisma,
+      CustomFieldEntityType.OPPORTUNITY,
+      id,
+    );
     return {
       ...opportunity,
       weightedValue: this.weightedValue(
         opportunity.estimatedValue,
         opportunity.probability,
       ),
+      customFields,
     };
   }
 
@@ -168,36 +200,62 @@ export class OpportunitiesService {
       if (!contact) throw new BadRequestException('Contact not found');
     }
 
-    const updated = await this.prisma.opportunity.update({
-      where: { id },
-      data: {
-        opportunityName: dto.opportunityName,
-        accountId: dto.accountId,
-        contactId: dto.contactId,
-        estimatedValue: dto.estimatedValue,
-        probability: dto.probability,
-        expectedCloseDate: dto.expectedCloseDate,
+    const beforeCustomFields = await this.customFieldsService.getValuesMap(
+      this.prisma,
+      CustomFieldEntityType.OPPORTUNITY,
+      id,
+    );
+
+    const updatedWithCustomFields = await this.prisma.$transaction(
+      async (tx) => {
+        const updated = await tx.opportunity.update({
+          where: { id },
+          data: {
+            opportunityName: dto.opportunityName,
+            accountId: dto.accountId,
+            contactId: dto.contactId,
+            estimatedValue: dto.estimatedValue,
+            probability: dto.probability,
+            expectedCloseDate: dto.expectedCloseDate,
+          },
+        });
+
+        await this.customFieldsService.writeValues({
+          db: tx,
+          entityType: CustomFieldEntityType.OPPORTUNITY,
+          entityId: id,
+          customFields: dto.customFields,
+          requireAllRequired: false,
+        });
+
+        const customFields = await this.customFieldsService.getValuesMap(
+          tx,
+          CustomFieldEntityType.OPPORTUNITY,
+          id,
+        );
+
+        return { ...updated, customFields };
       },
-    });
+    );
 
     await this.auditService.log({
       actorUserId,
       action: 'opportunity.update',
       entityType: 'opportunity',
-      entityId: updated.id,
-      before: existing,
-      after: updated,
+      entityId: updatedWithCustomFields.id,
+      before: { ...existing, customFields: beforeCustomFields },
+      after: updatedWithCustomFields,
     });
 
     this.eventBus.emit({
       type: 'opportunity.updated',
       actorUserId,
       entityType: 'opportunity',
-      entityId: updated.id,
-      payload: { before: existing, after: updated },
+      entityId: updatedWithCustomFields.id,
+      payload: { before: existing, after: updatedWithCustomFields },
     });
 
-    return updated;
+    return updatedWithCustomFields;
   }
 
   async changeStage(id: string, dto: ChangeStageDto, actorUserId: string) {

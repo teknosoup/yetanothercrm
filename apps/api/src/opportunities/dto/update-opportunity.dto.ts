@@ -2,6 +2,7 @@ import { Transform } from 'class-transformer';
 import {
   IsDate,
   IsInt,
+  IsObject,
   IsOptional,
   IsString,
   Min,
@@ -38,4 +39,8 @@ export class UpdateOpportunityDto {
   )
   @IsDate()
   expectedCloseDate?: Date;
+
+  @IsOptional()
+  @IsObject()
+  customFields?: Record<string, unknown>;
 }

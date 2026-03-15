@@ -1,6 +1,7 @@
 import {
   IsEmail,
   IsInt,
+  IsObject,
   IsOptional,
   IsString,
   Min,
@@ -44,4 +45,8 @@ export class CreateLeadDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @IsOptional()
+  @IsObject()
+  customFields?: Record<string, unknown>;
 }

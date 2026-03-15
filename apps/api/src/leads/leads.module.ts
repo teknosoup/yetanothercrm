@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
+import { CustomFieldsModule } from '../custom-fields/custom-fields.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { TimelineModule } from '../timeline/timeline.module';
 import { LeadsController } from './leads.controller';
 import { LeadsService } from './leads.service';
 
 @Module({
-  imports: [TimelineModule, NotificationsModule],
+  imports: [TimelineModule, NotificationsModule, CustomFieldsModule],
   controllers: [LeadsController],
   providers: [LeadsService],
 })

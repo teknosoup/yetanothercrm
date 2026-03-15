@@ -4,6 +4,7 @@ import {
   IsDate,
   IsEnum,
   IsInt,
+  IsObject,
   IsOptional,
   IsString,
   Min,
@@ -43,4 +44,8 @@ export class CreateOpportunityDto {
   )
   @IsDate()
   expectedCloseDate?: Date;
+
+  @IsOptional()
+  @IsObject()
+  customFields?: Record<string, unknown>;
 }

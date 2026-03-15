@@ -3,10 +3,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { CustomFieldEntityType, Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { EventBusService } from '../event-bus/event-bus.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { CustomFieldsService } from '../custom-fields/custom-fields.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { ListContactsQuery } from './dto/list-contacts.query';
 import { UpdateContactDto } from './dto/update-contact.dto';
@@ -17,6 +18,7 @@ export class ContactsService {
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
     private readonly eventBus: EventBusService,
+    private readonly customFieldsService: CustomFieldsService,
   ) {}
 
   async list(query: ListContactsQuery) {
@@ -343,36 +345,56 @@ export class ContactsService {
       if (!account) throw new BadRequestException('Account not found');
     }
 
-    const contact = await this.prisma.contact.create({
-      data: {
-        fullName: dto.fullName,
-        jobTitle: dto.jobTitle,
-        email: dto.email,
-        phone: dto.phone,
-        preferredChannel: dto.preferredChannel,
-        status: dto.status ?? 'ACTIVE',
-        ownerId: actorUserId,
-        accountId: dto.accountId,
+    const contactWithCustomFields = await this.prisma.$transaction(
+      async (tx) => {
+        const contact = await tx.contact.create({
+          data: {
+            fullName: dto.fullName,
+            jobTitle: dto.jobTitle,
+            email: dto.email,
+            phone: dto.phone,
+            preferredChannel: dto.preferredChannel,
+            status: dto.status ?? 'ACTIVE',
+            ownerId: actorUserId,
+            accountId: dto.accountId,
+          },
+        });
+
+        await this.customFieldsService.writeValues({
+          db: tx,
+          entityType: CustomFieldEntityType.CONTACT,
+          entityId: contact.id,
+          customFields: dto.customFields,
+          requireAllRequired: true,
+        });
+
+        const customFields = await this.customFieldsService.getValuesMap(
+          tx,
+          CustomFieldEntityType.CONTACT,
+          contact.id,
+        );
+
+        return { ...contact, customFields };
       },
-    });
+    );
 
     await this.auditService.log({
       actorUserId,
       action: 'contact.create',
       entityType: 'contact',
-      entityId: contact.id,
-      after: contact,
+      entityId: contactWithCustomFields.id,
+      after: contactWithCustomFields,
     });
 
     this.eventBus.emit({
       type: 'contact.created',
       actorUserId,
       entityType: 'contact',
-      entityId: contact.id,
-      payload: { after: contact },
+      entityId: contactWithCustomFields.id,
+      payload: { after: contactWithCustomFields },
     });
 
-    return contact;
+    return contactWithCustomFields;
   }
 
   async findOne(id: string) {
@@ -384,7 +406,12 @@ export class ContactsService {
       },
     });
     if (!contact) throw new NotFoundException('Contact not found');
-    return contact;
+    const customFields = await this.customFieldsService.getValuesMap(
+      this.prisma,
+      CustomFieldEntityType.CONTACT,
+      id,
+    );
+    return { ...contact, customFields };
   }
 
   async history(id: string) {
@@ -419,37 +446,63 @@ export class ContactsService {
       if (!account) throw new BadRequestException('Account not found');
     }
 
-    const updated = await this.prisma.contact.update({
-      where: { id },
-      data: {
-        fullName: dto.fullName,
-        jobTitle: dto.jobTitle,
-        email: dto.email,
-        phone: dto.phone,
-        preferredChannel: dto.preferredChannel,
-        status: dto.status,
-        accountId: dto.accountId,
+    const beforeCustomFields = await this.customFieldsService.getValuesMap(
+      this.prisma,
+      CustomFieldEntityType.CONTACT,
+      id,
+    );
+
+    const updatedWithCustomFields = await this.prisma.$transaction(
+      async (tx) => {
+        const updated = await tx.contact.update({
+          where: { id },
+          data: {
+            fullName: dto.fullName,
+            jobTitle: dto.jobTitle,
+            email: dto.email,
+            phone: dto.phone,
+            preferredChannel: dto.preferredChannel,
+            status: dto.status,
+            accountId: dto.accountId,
+          },
+        });
+
+        await this.customFieldsService.writeValues({
+          db: tx,
+          entityType: CustomFieldEntityType.CONTACT,
+          entityId: id,
+          customFields: dto.customFields,
+          requireAllRequired: false,
+        });
+
+        const customFields = await this.customFieldsService.getValuesMap(
+          tx,
+          CustomFieldEntityType.CONTACT,
+          id,
+        );
+
+        return { ...updated, customFields };
       },
-    });
+    );
 
     await this.auditService.log({
       actorUserId,
       action: 'contact.update',
       entityType: 'contact',
-      entityId: updated.id,
-      before: existing,
-      after: updated,
+      entityId: updatedWithCustomFields.id,
+      before: { ...existing, customFields: beforeCustomFields },
+      after: updatedWithCustomFields,
     });
 
     this.eventBus.emit({
       type: 'contact.updated',
       actorUserId,
       entityType: 'contact',
-      entityId: updated.id,
-      payload: { before: existing, after: updated },
+      entityId: updatedWithCustomFields.id,
+      payload: { before: existing, after: updatedWithCustomFields },
     });
 
-    return updated;
+    return updatedWithCustomFields;
   }
 
   async remove(id: string, actorUserId: string) {

@@ -41,6 +41,21 @@ enum TaskStatus {
   CANCELED
 }
 
+enum CustomFieldEntityType {
+  LEAD
+  ACCOUNT
+  CONTACT
+  OPPORTUNITY
+}
+
+enum CustomFieldType {
+  TEXT
+  NUMBER
+  DATE
+  BOOLEAN
+  SELECT
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -356,4 +371,35 @@ model Plugin {
   config    Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model CustomFieldDefinition {
+  id         String               @id @default(uuid())
+  entityType CustomFieldEntityType
+  key        String
+  label      String
+  type       CustomFieldType
+  required   Boolean              @default(false)
+  options    Json?
+  values     CustomFieldValue[]
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+
+  @@unique([entityType, key])
+  @@index([entityType])
+}
+
+model CustomFieldValue {
+  id           String               @id @default(uuid())
+  definitionId String
+  definition   CustomFieldDefinition @relation(fields: [definitionId], references: [id], onDelete: Cascade)
+  entityType   CustomFieldEntityType
+  entityId     String
+  value        Json?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  @@unique([definitionId, entityId])
+  @@index([entityType, entityId])
+  @@index([definitionId])
 }

@@ -651,7 +651,7 @@
         <Cell><Data ss:Type="String">Todo</Data></Cell>
       </Row>
 
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">CORE</Data></Cell>
         <Cell><Data ss:Type="String">C4</Data></Cell>
         <Cell><Data ss:Type="String">Admin UI (Users/Roles/Permissions) &amp; Audit Viewer</Data></Cell>
@@ -661,9 +661,9 @@
         <Cell><Data ss:Type="String">RBAC/permissions sudah ada di API; butuh endpoints role/permission &amp; UI</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
         <Cell><Data ss:Type="String">Sales:Backlog; Support:Backlog</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">CORE</Data></Cell>
         <Cell><Data ss:Type="String">C4</Data></Cell>
         <Cell><Data ss:Type="String">Admin UI (Users/Roles/Permissions) &amp; Audit Viewer</Data></Cell>
@@ -673,9 +673,9 @@
         <Cell><Data ss:Type="String">Audit API sudah ada; butuh UI viewer</Data></Cell>
         <Cell><Data ss:Type="String">Should Have</Data></Cell>
         <Cell><Data ss:Type="String">Sales:Backlog; Support:S2</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">CORE</Data></Cell>
         <Cell><Data ss:Type="String">C4</Data></Cell>
         <Cell><Data ss:Type="String">Admin UI (Users/Roles/Permissions) &amp; Audit Viewer</Data></Cell>
@@ -685,7 +685,7 @@
         <Cell><Data ss:Type="String">Plugins API sudah ada; perlu UI edit config &amp; audit</Data></Cell>
         <Cell><Data ss:Type="String">Should Have</Data></Cell>
         <Cell><Data ss:Type="String">Sales:Backlog; Support:S2</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
       </Row>
 
       <Row ss:StyleID="Todo">
@@ -713,7 +713,7 @@
         <Cell><Data ss:Type="String">Todo</Data></Cell>
       </Row>
 
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">CORE</Data></Cell>
         <Cell><Data ss:Type="String">C6</Data></Cell>
         <Cell><Data ss:Type="String">Plugin Platform Upgrade</Data></Cell>
@@ -723,9 +723,9 @@
         <Cell><Data ss:Type="String">EventBus sudah ada; perlu coverage di semua service</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
         <Cell><Data ss:Type="String">Sales:S1; Support:S1</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">CORE</Data></Cell>
         <Cell><Data ss:Type="String">C6</Data></Cell>
         <Cell><Data ss:Type="String">Plugin Platform Upgrade</Data></Cell>
@@ -735,7 +735,7 @@
         <Cell><Data ss:Type="String">PluginsService.register permissions sudah ada; butuh routing/dispatch layer</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
         <Cell><Data ss:Type="String">Sales:S1; Support:S1</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
       </Row>
       <Row ss:StyleID="Todo">
         <Cell><Data ss:Type="String">CORE</Data></Cell>
@@ -787,7 +787,7 @@
         <Cell><Data ss:Type="String">Todo</Data></Cell>
       </Row>
 
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">PLUGIN</Data></Cell>
         <Cell><Data ss:Type="String">P1</Data></Cell>
         <Cell><Data ss:Type="String">Lead Assignment Rules</Data></Cell>
@@ -797,9 +797,9 @@
         <Cell><Data ss:Type="String">C6-S1 (event lead.created), C6-S3 (config), C6-S2 bila butuh endpoint plugin</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
         <Cell><Data ss:Type="String">Sales:S1; Support:Backlog</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
       </Row>
-      <Row ss:StyleID="Todo">
+      <Row ss:StyleID="Done">
         <Cell><Data ss:Type="String">PLUGIN</Data></Cell>
         <Cell><Data ss:Type="String">P1</Data></Cell>
         <Cell><Data ss:Type="String">Lead Assignment Rules</Data></Cell>
@@ -809,7 +809,7 @@
         <Cell><Data ss:Type="String">P1-S1, C6-S1</Data></Cell>
         <Cell><Data ss:Type="String">Must Have</Data></Cell>
         <Cell><Data ss:Type="String">Sales:S1; Support:Backlog</Data></Cell>
-        <Cell><Data ss:Type="String">Todo</Data></Cell>
+        <Cell><Data ss:Type="String">Done</Data></Cell>
       </Row>
 
       <Row ss:StyleID="Todo">

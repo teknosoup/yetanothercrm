@@ -175,6 +175,83 @@ class BuiltinPluginsRegistrar implements OnModuleInit {
       key: 'lead-assignment-rules',
       name: 'Lead Assignment Rules',
       version: '1.0.0',
+      permissions: [
+        {
+          key: 'lead_assignment.simulate',
+          description: 'Simulate lead assignment without updating data',
+        },
+      ],
+      endpoints: [
+        {
+          method: 'POST',
+          path: 'simulate',
+          requiredPermissions: ['lead_assignment.simulate'],
+          handler: async (ctx, req) => {
+            const body = isRecord(req.body) ? req.body : {};
+            const leadId = typeof body.leadId === 'string' ? body.leadId : null;
+            const region =
+              typeof body.region === 'string' ? body.region.trim() : null;
+            const source =
+              typeof body.source === 'string' ? body.source.trim() : null;
+            const ownerIdRaw =
+              typeof body.ownerId === 'string' ? body.ownerId : null;
+            const ownerId = ownerIdRaw ?? req.actorUserId;
+
+            const lead = leadId
+              ? await ctx.prisma.lead.findUnique({
+                  where: { id: leadId },
+                  select: {
+                    id: true,
+                    region: true,
+                    source: true,
+                    ownerId: true,
+                  },
+                })
+              : null;
+
+            const input = lead
+              ? {
+                  region: lead.region,
+                  source: lead.source,
+                  ownerId: lead.ownerId,
+                }
+              : { region, source, ownerId };
+
+            const pluginRow = await ctx.prisma.plugin.findUnique({
+              where: { key: 'lead-assignment-rules' },
+              select: { config: true },
+            });
+            const config = parseLeadAssignmentConfig(pluginRow?.config);
+
+            const ownerIds = await computeCandidateOwnerIds(ctx, config, input);
+            const candidateOwnerIds =
+              ownerIds.length > 0
+                ? ownerIds
+                : config.defaultOwnerId
+                  ? [config.defaultOwnerId]
+                  : config.fallbackToCreator === false
+                    ? []
+                    : [input.ownerId];
+
+            const selectedOwnerId =
+              candidateOwnerIds.length > 0
+                ? await pickLeastLoadedOwner(ctx, candidateOwnerIds)
+                : null;
+
+            return {
+              input: {
+                leadId,
+                region: input.region,
+                source: input.source,
+                ownerId: input.ownerId,
+              },
+              mode: config.mode ?? 'round_robin',
+              candidateOwnerIds,
+              selectedOwnerId,
+            };
+          },
+        },
+      ],
       onActivate: (ctx) => {
         if (this.leadAssignmentSub) return;
 

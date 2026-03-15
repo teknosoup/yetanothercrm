@@ -3,11 +3,18 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Lead, LeadStatus, OpportunityStage, Prisma } from '@prisma/client';
+import {
+  CustomFieldEntityType,
+  Lead,
+  LeadStatus,
+  OpportunityStage,
+  Prisma,
+} from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
 import { EventBusService } from '../event-bus/event-bus.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { CustomFieldsService } from '../custom-fields/custom-fields.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { ListLeadsQuery } from './dto/list-leads.query';
 import { UpdateLeadDto } from './dto/update-lead.dto';
@@ -19,6 +26,7 @@ export class LeadsService {
     private readonly auditService: AuditService,
     private readonly eventBus: EventBusService,
     private readonly notificationsService: NotificationsService,
+    private readonly customFieldsService: CustomFieldsService,
   ) {}
 
   async list(query: ListLeadsQuery) {
@@ -335,44 +343,67 @@ export class LeadsService {
   }
 
   async create(dto: CreateLeadDto, actorUserId: string) {
-    const lead = await this.prisma.lead.create({
-      data: {
-        fullName: dto.fullName,
-        companyName: dto.companyName,
-        email: dto.email,
-        phone: dto.phone,
-        source: dto.source,
-        industry: dto.industry,
-        region: dto.region,
-        score: dto.score,
-        notes: dto.notes,
-        ownerId: actorUserId,
-      },
+    const leadWithCustomFields = await this.prisma.$transaction(async (tx) => {
+      const lead = await tx.lead.create({
+        data: {
+          fullName: dto.fullName,
+          companyName: dto.companyName,
+          email: dto.email,
+          phone: dto.phone,
+          source: dto.source,
+          industry: dto.industry,
+          region: dto.region,
+          score: dto.score,
+          notes: dto.notes,
+          ownerId: actorUserId,
+        },
+      });
+
+      await this.customFieldsService.writeValues({
+        db: tx,
+        entityType: CustomFieldEntityType.LEAD,
+        entityId: lead.id,
+        customFields: dto.customFields,
+        requireAllRequired: true,
+      });
+
+      const customFields = await this.customFieldsService.getValuesMap(
+        tx,
+        CustomFieldEntityType.LEAD,
+        lead.id,
+      );
+
+      return { ...lead, customFields };
     });
 
     await this.auditService.log({
       actorUserId,
       action: 'lead.create',
       entityType: 'lead',
-      entityId: lead.id,
-      after: lead,
+      entityId: leadWithCustomFields.id,
+      after: leadWithCustomFields,
     });
 
     this.eventBus.emit({
       type: 'lead.created',
       actorUserId,
       entityType: 'lead',
-      entityId: lead.id,
-      payload: { ownerId: lead.ownerId },
+      entityId: leadWithCustomFields.id,
+      payload: { ownerId: leadWithCustomFields.ownerId },
     });
 
-    return lead;
+    return leadWithCustomFields;
   }
 
   async findOne(id: string) {
     const lead = await this.prisma.lead.findUnique({ where: { id } });
     if (!lead) throw new NotFoundException('Lead not found');
-    return lead;
+    const customFields = await this.customFieldsService.getValuesMap(
+      this.prisma,
+      CustomFieldEntityType.LEAD,
+      id,
+    );
+    return { ...lead, customFields };
   }
 
   async findDuplicates() {
@@ -442,40 +473,66 @@ export class LeadsService {
     const existing = await this.prisma.lead.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException('Lead not found');
 
-    const updated = await this.prisma.lead.update({
-      where: { id },
-      data: {
-        fullName: dto.fullName,
-        companyName: dto.companyName,
-        email: dto.email,
-        phone: dto.phone,
-        source: dto.source,
-        industry: dto.industry,
-        region: dto.region,
-        status: dto.status,
-        score: dto.score,
-        notes: dto.notes,
+    const beforeCustomFields = await this.customFieldsService.getValuesMap(
+      this.prisma,
+      CustomFieldEntityType.LEAD,
+      id,
+    );
+
+    const updatedWithCustomFields = await this.prisma.$transaction(
+      async (tx) => {
+        const updated = await tx.lead.update({
+          where: { id },
+          data: {
+            fullName: dto.fullName,
+            companyName: dto.companyName,
+            email: dto.email,
+            phone: dto.phone,
+            source: dto.source,
+            industry: dto.industry,
+            region: dto.region,
+            status: dto.status,
+            score: dto.score,
+            notes: dto.notes,
+          },
+        });
+
+        await this.customFieldsService.writeValues({
+          db: tx,
+          entityType: CustomFieldEntityType.LEAD,
+          entityId: id,
+          customFields: dto.customFields,
+          requireAllRequired: false,
+        });
+
+        const customFields = await this.customFieldsService.getValuesMap(
+          tx,
+          CustomFieldEntityType.LEAD,
+          id,
+        );
+
+        return { ...updated, customFields };
       },
-    });
+    );
 
     await this.auditService.log({
       actorUserId,
       action: 'lead.update',
       entityType: 'lead',
-      entityId: updated.id,
-      before: existing,
-      after: updated,
+      entityId: updatedWithCustomFields.id,
+      before: { ...existing, customFields: beforeCustomFields },
+      after: updatedWithCustomFields,
     });
 
     this.eventBus.emit({
       type: 'lead.updated',
       actorUserId,
       entityType: 'lead',
-      entityId: updated.id,
-      payload: { before: existing, after: updated },
+      entityId: updatedWithCustomFields.id,
+      payload: { before: existing, after: updatedWithCustomFields },
     });
 
-    return updated;
+    return updatedWithCustomFields;
   }
 
   async remove(id: string, actorUserId: string) {

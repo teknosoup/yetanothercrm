@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { AuditModule } from './audit/audit.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ContactsModule } from './contacts/contacts.module';
+import { CustomFieldsModule } from './custom-fields/custom-fields.module';
 import { EventBusModule } from './event-bus/event-bus.module';
 import { LeadsModule } from './leads/leads.module';
 import { NotesModule } from './notes/notes.module';
@@ -20,6 +21,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { SearchModule } from './search/search.module';
 import { TasksModule } from './tasks/tasks.module';
 import { UsersModule } from './users/users.module';
+import { RbacModule } from './rbac/rbac.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { UsersModule } from './users/users.module';
     AuditModule,
     AuthModule,
     UsersModule,
+    RbacModule,
+    CustomFieldsModule,
     DashboardModule,
     LeadsModule,
     AccountsModule,

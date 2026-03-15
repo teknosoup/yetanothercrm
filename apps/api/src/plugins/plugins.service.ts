@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
@@ -24,11 +25,30 @@ export type PluginContext = {
   notificationsService: NotificationsService;
 };
 
+export type PluginHttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+export type PluginHttpRequest = {
+  method: PluginHttpMethod;
+  path: string;
+  body: unknown;
+  query: Record<string, unknown>;
+  actorUserId: string;
+  roleId: string;
+};
+
+export type PluginEndpoint = {
+  method: PluginHttpMethod;
+  path: string;
+  requiredPermissions?: string[];
+  handler: (ctx: PluginContext, req: PluginHttpRequest) => Promise<unknown>;
+};
+
 export type CrmPlugin = {
   key: string;
   name: string;
   version?: string;
   permissions?: PluginPermission[];
+  endpoints?: PluginEndpoint[];
   onActivate?: (ctx: PluginContext) => Promise<void> | void;
   onDeactivate?: (ctx: PluginContext) => Promise<void> | void;
 };
@@ -46,6 +66,8 @@ export class PluginsService implements OnModuleInit {
     private readonly auditService: AuditService,
     private readonly notificationsService: NotificationsService,
   ) {}
+
+  private readonly reservedEndpointPaths = new Set(['activate', 'deactivate']);
 
   async onModuleInit() {
     try {
@@ -139,6 +161,9 @@ export class PluginsService implements OnModuleInit {
     if (this.registry.has(plugin.key))
       throw new BadRequestException('Plugin already registered');
 
+    const endpoints = this.normalizeEndpoints(plugin.endpoints ?? []);
+    plugin.endpoints = endpoints;
+
     this.registry.set(plugin.key, plugin);
 
     await this.ensurePermissions(plugin.permissions ?? []);
@@ -158,6 +183,59 @@ export class PluginsService implements OnModuleInit {
     });
 
     if (row.isActive) await this.activateRuntime(plugin.key);
+  }
+
+  async dispatchEndpoint(args: {
+    key: string;
+    method: PluginHttpMethod;
+    path: string;
+    body: unknown;
+    query: Record<string, unknown>;
+    actorUserId: string;
+    roleId: string;
+  }) {
+    const plugin = this.registry.get(args.key);
+    if (!plugin) throw new NotFoundException('Plugin not registered');
+
+    const normalizedPath = this.normalizeEndpointPath(args.path);
+    if (!normalizedPath) throw new NotFoundException('Endpoint not found');
+    if (this.reservedEndpointPaths.has(normalizedPath))
+      throw new NotFoundException('Endpoint not found');
+
+    const row = await this.prisma.plugin.findUnique({
+      where: { key: args.key },
+      select: { isActive: true },
+    });
+    if (!row?.isActive) throw new NotFoundException('Plugin is not active');
+
+    await this.activateRuntime(args.key);
+
+    const endpoint = (plugin.endpoints ?? []).find(
+      (e) => e.method === args.method && e.path === normalizedPath,
+    );
+    if (!endpoint) throw new NotFoundException('Endpoint not found');
+
+    const requiredPermissions = endpoint.requiredPermissions ?? [];
+    if (requiredPermissions.length > 0) {
+      const ok = await this.hasPermissions(args.roleId, requiredPermissions);
+      if (!ok) throw new ForbiddenException();
+    }
+
+    const ctx: PluginContext = {
+      prisma: this.prisma,
+      eventBus: this.eventBus,
+      auditService: this.auditService,
+      notificationsService: this.notificationsService,
+    };
+
+    return endpoint.handler(ctx, {
+      method: args.method,
+      path: normalizedPath,
+      body: args.body,
+      query: args.query,
+      actorUserId: args.actorUserId,
+      roleId: args.roleId,
+    });
   }
 
   async activate(key: string) {
@@ -198,6 +276,49 @@ export class PluginsService implements OnModuleInit {
       data: rows,
       skipDuplicates: true,
     });
+  }
+
+  private async hasPermissions(roleId: string, required: string[]) {
+    const roleWithPermissions = await this.prisma.role.findUnique({
+      where: { id: roleId },
+      select: {
+        rolePermissions: {
+          select: { permission: { select: { key: true } } },
+        },
+      },
+    });
+
+    const permissionKeys = new Set(
+      roleWithPermissions?.rolePermissions.map((rp) => rp.permission.key) ?? [],
+    );
+
+    return required.every((key) => permissionKeys.has(key));
+  }
+
+  private normalizeEndpointPath(value: string) {
+    return value.trim().replace(/^\/+/, '').replace(/\/+$/, '');
+  }
+
+  private normalizeEndpoints(endpoints: PluginEndpoint[]) {
+    const normalized: PluginEndpoint[] = [];
+    const seen = new Set<string>();
+
+    for (const endpoint of endpoints) {
+      const path = this.normalizeEndpointPath(endpoint.path);
+      if (!path)
+        throw new BadRequestException('Plugin endpoint path is required');
+      if (this.reservedEndpointPaths.has(path))
+        throw new BadRequestException(`Reserved endpoint path: ${path}`);
+
+      const key = `${endpoint.method}:${path}`;
+      if (seen.has(key))
+        throw new BadRequestException(`Duplicate plugin endpoint: ${key}`);
+      seen.add(key);
+
+      normalized.push({ ...endpoint, path });
+    }
+
+    return normalized;
   }
 
   private async withLock(key: string, fn: () => Promise<void>) {
