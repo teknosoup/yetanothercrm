@@ -130,6 +130,7 @@ async function main() {
     'search.read',
     'notification.read',
     'notification.update',
+    'custom_field.read',
   ]
     .map((k) => permissionByKey.get(k)?.id)
     .filter((id): id is string => Boolean(id));
@@ -141,6 +142,7 @@ async function main() {
     'search.read',
     'notification.read',
     'notification.update',
+    'custom_field.read',
   ]
     .map((k) => permissionByKey.get(k)?.id)
     .filter((id): id is string => Boolean(id));
@@ -159,6 +161,7 @@ async function main() {
     'search.read',
     'notification.read',
     'notification.update',
+    'custom_field.read',
   ]
     .map((k) => permissionByKey.get(k)?.id)
     .filter((id): id is string => Boolean(id));
@@ -179,6 +182,7 @@ async function main() {
     'user.read',
     'notification.read',
     'notification.update',
+    'custom_field.read',
   ]
     .map((k) => permissionByKey.get(k)?.id)
     .filter((id): id is string => Boolean(id));
@@ -194,6 +198,7 @@ async function main() {
     'user.read',
     'notification.read',
     'notification.update',
+    'custom_field.read',
   ]
     .map((k) => permissionByKey.get(k)?.id)
     .filter((id): id is string => Boolean(id));
