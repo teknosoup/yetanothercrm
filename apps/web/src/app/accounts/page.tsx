@@ -126,10 +126,7 @@ export default function AccountsPage() {
         const raw = customFieldValues[def.key];
         if (def.type === 'BOOLEAN') {
           if (raw === true || raw === false) customFields[def.key] = raw;
-          else if (def.required) {
-            setError(`Custom field wajib diisi: ${def.label}`);
-            return;
-          }
+          else if (def.required) customFields[def.key] = false;
           continue;
         }
 
